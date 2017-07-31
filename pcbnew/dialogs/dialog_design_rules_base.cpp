@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Feb  6 2017)
+// C++ code generated with wxFormBuilder (version Jul 27 2017)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -29,7 +29,7 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_grid = new wxGrid( sbSizerUpper->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxSUNKEN_BORDER|wxTAB_TRAVERSAL|wxVSCROLL );
 	
 	// Grid
-	m_grid->CreateGrid( 1, 8 );
+	m_grid->CreateGrid( 1, 12 );
 	m_grid->EnableEditing( true );
 	m_grid->EnableGridLines( true );
 	m_grid->EnableDragGridSize( false );
@@ -42,6 +42,12 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_grid->SetColSize( 3, 85 );
 	m_grid->SetColSize( 4, 81 );
 	m_grid->SetColSize( 5, 90 );
+	m_grid->SetColSize( 6, 120 );
+	m_grid->SetColSize( 7, 120 );
+	m_grid->SetColSize( 8, 100 );
+	m_grid->SetColSize( 9, 90 );
+	m_grid->SetColSize( 10, 90 );
+	m_grid->SetColSize( 11, 90 );
 	m_grid->EnableDragColMove( false );
 	m_grid->EnableDragColSize( true );
 	m_grid->SetColLabelSize( 40 );
@@ -53,6 +59,12 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_grid->SetColLabelValue( 5, _("uVia Drill") );
 	m_grid->SetColLabelValue( 6, _("Diff Pair Width") );
 	m_grid->SetColLabelValue( 7, _("Diff Pair Gap") );
+	m_grid->SetColLabelValue( 8, _("Max Length") );
+	m_grid->SetColLabelValue( 9, _("uVia Drill") );
+	m_grid->SetColLabelValue( 10, _("Max Skew") );
+	m_grid->SetColLabelValue( 11, _("Topology") );
+	m_grid->SetColLabelValue( 12, _("Min Length") );
+	m_grid->SetColLabelValue( 13, _("Max Length") );
 	m_grid->SetColLabelAlignment( wxALIGN_CENTRE, wxALIGN_CENTRE );
 	
 	// Rows
@@ -171,7 +183,7 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_panelNetClassesEditor->SetSizer( bpanelNetClassesSizer );
 	m_panelNetClassesEditor->Layout();
 	bpanelNetClassesSizer->Fit( m_panelNetClassesEditor );
-	m_DRnotebook->AddPage( m_panelNetClassesEditor, _("Net Classes Editor"), false );
+	m_DRnotebook->AddPage( m_panelNetClassesEditor, _("Net Classes Editor"), true );
 	m_panelGolbalDesignRules = new wxPanel( m_DRnotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bpanelGlobRulesSizer;
 	bpanelGlobRulesSizer = new wxBoxSizer( wxVERTICAL );
@@ -387,7 +399,7 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_panelGolbalDesignRules->SetSizer( bpanelGlobRulesSizer );
 	m_panelGolbalDesignRules->Layout();
 	bpanelGlobRulesSizer->Fit( m_panelGolbalDesignRules );
-	m_DRnotebook->AddPage( m_panelGolbalDesignRules, _("Global Design Rules"), true );
+	m_DRnotebook->AddPage( m_panelGolbalDesignRules, _("Global Design Rules"), false );
 	
 	bMainSizer->Add( m_DRnotebook, 1, wxALL|wxEXPAND, 5 );
 	

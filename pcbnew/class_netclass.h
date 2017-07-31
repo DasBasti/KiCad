@@ -64,6 +64,51 @@ private:
     static const int DEFAULT_TRACK_WIDTH;
     static const int DEFAULT_DIFF_PAIR_WIDTH;
     static const int DEFAULT_DIFF_PAIR_GAP;
+    static const int DEFAULT_MAX_VIAS;
+    static const int DEFAULT_TOPOLOGY;
+    static const int DEFAULT_MIN_LENGTH;
+    static const int DEFAULT_MAX_LENGTH;
+    static const int DEFAULT_MAX_SKEW;
+    static const int DEFAULT_STUB_LENGTH;
+    static const int DEFAULT_TYPE;
+    static const unsigned DEFAULT_LAYER;
+    
+    /**
+     * There are four different types of signals that are known to the constraint manager.
+     */
+    enum {
+        NO_TYPE,
+        POWER_TYPE,
+        SIGNAL_TYPE,
+        MIXED_TYPE
+    };
+    
+    /**
+     * There are five different topologies known to the constraint manager.
+     * 
+     * The default topology for every signal is NO_SPECIAL_TOPOLOGY. There is no limitations on track routing.
+     * STAR_TOPOLOGY means the there is only one start for many ends of the signal
+     * T_TOPOLOGY means the signal is allowed to split into equally long branches
+     * FLYBY_TOPOLOGY means the signal
+     * HORIZONTAL_TOPOLOGY forces to route horizontally
+     * VERTICAL_TOPOLOGY forces to route vertically
+     * SIMPLE_DAISY_CHAIN_TOPOLOGY means the signal is routed from the start point to the next, to the next
+     * MIDDRIVEN_DAISY_CHAIN_TOPOLOGY means the signal is routed from the middel of the length to each end point in two directions
+     * MULTIPOINT_TOPOLOGY connects the nets in many places. Use this for GND and POWER nets
+     */
+    enum {
+        NO_SPECIAL_TOPOLOGY,
+        STAR_TOPOLOGY,
+        T_TOPOLOGY,
+        FLYBY_TOPOLOGY,
+        HORIZONTAL_TOPOLOGY,
+        VERTICAL_TOPOLOGY,
+        SIMPLE_DAISY_CHAIN_TOPOLOGY,
+        MIDDRIVEN_DAISY_CHAIN_TOPOLOGY,
+        MULTIPOINT_TOPOLOGY
+    };
+        
+
 
 protected:
     wxString    m_Name;                 ///< Name of the net class
@@ -84,6 +129,16 @@ protected:
 
     int         m_diffPairWidth;
     int         m_diffPairGap;
+    
+    int         m_max_vias;             ///< number of vias from start to end of track 
+    int         m_topology;             ///< routing topology
+    
+    int         m_min_length;           ///< minimal length of track from start to end
+    int         m_max_length;           ///< maximum length of track from start to end
+    int         m_max_skew;             ///< maximum skew of all tracks in class
+    int         m_stub_length;          ///< stub length of track
+    int         m_type;                 ///< routing type
+    unsigned    m_layer;                ///< each bit is a layer 1..32
 
 public:
 
@@ -193,6 +248,32 @@ public:
     int     GetDiffPairGap() const            { return m_diffPairGap; }
     void    SetDiffPairGap( int aSize )       { m_diffPairGap = aSize; }
 
+    int     GetMaxVias() const              { return m_max_vias; }
+    void    SetMaxVias( int aNumber )       { m_max_vias = aNumber; }
+    
+    int     GetTopology() const            { return m_topology; }
+    void    SetTopology( int aTopology )    { m_topology = aTopology; }
+    
+    int     GetMinLength() const            { return m_min_length; }
+    void    SetMinLength( int aLength )     { m_min_length = aLength; }
+    
+    int     GetMaxLength() const            { return m_max_length; }
+    void    SetMaxLength( int aLength )     { m_max_length = aLength; }
+    
+    int     GetMaxSkew() const              { return m_max_skew; }
+    void    SetMaxSkew( int aLength )       { m_max_skew = aLength; }
+    
+    int     GetStubLength() const           { return m_stub_length; }
+    void    SetStubLength( int aLength )    { m_stub_length = aLength; }
+    
+    int     GetType() const                 { return m_type; }
+    void    SetType( int aType )            { m_type = aType; }
+    
+    unsigned    GetLayer() const            { return  m_layer; }
+    void    SetLayer( unsigned aLayer )     { m_layer = aLayer; }
+
+    
+    
     /**
      * Function SetParams
      * will set all the parameters by copying them from \a defaults.

@@ -46,7 +46,14 @@ const int NETCLASS::DEFAULT_UVIA_DRILL = Millimeter2iu( 0.1 );
 const int NETCLASS::DEFAULT_TRACK_WIDTH = Millimeter2iu( 0.25 );
 const int NETCLASS::DEFAULT_DIFF_PAIR_WIDTH = Millimeter2iu( 0.2 );
 const int NETCLASS::DEFAULT_DIFF_PAIR_GAP = Millimeter2iu( 0.25 );
-
+const int NETCLASS::DEFAULT_MAX_VIAS = 0; // unlimited if zero
+const int NETCLASS::DEFAULT_TOPOLOGY = 0; // any if zero
+const int NETCLASS::DEFAULT_MIN_LENGTH = 0; // none if zero
+const int NETCLASS::DEFAULT_MAX_LENGTH = 0; // none if zero
+const int NETCLASS::DEFAULT_MAX_SKEW = 0; // none if zero
+const int NETCLASS::DEFAULT_STUB_LENGTH = 0; // none if zero
+const int NETCLASS::DEFAULT_TYPE = 0; // none if zero
+const unsigned NETCLASS::DEFAULT_LAYER = UINT_MAX; // all layers
 
 NETCLASS::NETCLASS( const wxString& aName ) :
     m_Name( aName )
@@ -62,6 +69,14 @@ NETCLASS::NETCLASS( const wxString& aName ) :
     SetuViaDiameter( DEFAULT_UVIA_DIAMETER );
     SetDiffPairGap( DEFAULT_DIFF_PAIR_GAP );
     SetDiffPairWidth( DEFAULT_DIFF_PAIR_WIDTH );
+    SetMaxVias( DEFAULT_MAX_VIAS );
+    SetTopology( DEFAULT_TOPOLOGY );
+    SetMinLength( DEFAULT_MIN_LENGTH );
+    SetMaxLength( DEFAULT_MAX_LENGTH );
+    SetMaxSkew( DEFAULT_MAX_SKEW );
+    SetStubLength( DEFAULT_STUB_LENGTH );
+    SetType( DEFAULT_TYPE );
+    SetLayer( DEFAULT_LAYER );
 }
 
 
@@ -75,7 +90,14 @@ void NETCLASS::SetParams( const NETCLASS& aDefaults )
     SetuViaDrill( aDefaults.GetuViaDrill() );
     SetDiffPairWidth( aDefaults.GetDiffPairWidth() );
     SetDiffPairGap( aDefaults.GetDiffPairGap() );
-
+    SetMaxVias( aDefaults.GetMaxVias() );
+    SetTopology( aDefaults.GetTopology() );
+    SetMinLength( aDefaults.GetMinLength() );
+    SetMaxLength( aDefaults.GetMaxLength() );
+    SetMaxSkew( aDefaults.GetMaxSkew() );
+    SetStubLength( aDefaults.GetStubLength() );
+    SetType( aDefaults.GetType() );
+    SetLayer( aDefaults.GetLayer() );
 }
 
 
