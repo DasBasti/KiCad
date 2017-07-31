@@ -29,7 +29,7 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_grid = new wxGrid( sbSizerUpper->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxSUNKEN_BORDER|wxTAB_TRAVERSAL|wxVSCROLL );
 	
 	// Grid
-	m_grid->CreateGrid( 1, 12 );
+	m_grid->CreateGrid( 1, 16 );
 	m_grid->EnableEditing( true );
 	m_grid->EnableGridLines( true );
 	m_grid->EnableDragGridSize( false );
@@ -48,6 +48,7 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_grid->SetColSize( 9, 90 );
 	m_grid->SetColSize( 10, 90 );
 	m_grid->SetColSize( 11, 90 );
+	m_grid->SetColSize( 12, 90 );
 	m_grid->EnableDragColMove( false );
 	m_grid->EnableDragColSize( true );
 	m_grid->SetColLabelSize( 40 );
@@ -59,12 +60,14 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_grid->SetColLabelValue( 5, _("uVia Drill") );
 	m_grid->SetColLabelValue( 6, _("Diff Pair Width") );
 	m_grid->SetColLabelValue( 7, _("Diff Pair Gap") );
-	m_grid->SetColLabelValue( 8, _("Max Length") );
-	m_grid->SetColLabelValue( 9, _("uVia Drill") );
-	m_grid->SetColLabelValue( 10, _("Max Skew") );
-	m_grid->SetColLabelValue( 11, _("Topology") );
-	m_grid->SetColLabelValue( 12, _("Min Length") );
-	m_grid->SetColLabelValue( 13, _("Max Length") );
+	m_grid->SetColLabelValue( 8, _("Max Vias") );
+	m_grid->SetColLabelValue( 9, _("Topology") );
+	m_grid->SetColLabelValue( 10, _("Min Length") );
+	m_grid->SetColLabelValue( 11, _("Max Length") );
+	m_grid->SetColLabelValue( 12, _("Max Skew") );
+	m_grid->SetColLabelValue( 13, _("Stub Length") );
+	m_grid->SetColLabelValue( 14, _("Type") );
+	m_grid->SetColLabelValue( 15, _("Layer") );
 	m_grid->SetColLabelAlignment( wxALIGN_CENTRE, wxALIGN_CENTRE );
 	
 	// Rows

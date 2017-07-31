@@ -510,6 +510,30 @@ static void class2gridRow( wxGrid* grid, int row, NETCLASSPTR nc )
 
     msg = StringFromValue( g_UserUnit, nc->GetDiffPairWidth() );
     grid->SetCellValue( row, GRID_DIFF_PAIR_WIDTH, msg );
+    
+    msg = StringFromValue( g_UserUnit, nc->GetMaxVias() );
+    grid->SetCellValue( row, GRID_MAX_VIAS, msg );
+    
+    msg = StringFromValue( g_UserUnit, nc->GetTopology() );
+    grid->SetCellValue( row, GRID_TOPOLOGY, msg );
+    
+    msg = StringFromValue( g_UserUnit, nc->GetMinLength() );
+    grid->SetCellValue( row, GRID_MIN_LENGTH, msg );
+    
+    msg = StringFromValue( g_UserUnit, nc->GetMaxLength() );
+    grid->SetCellValue( row, GRID_MAX_LENGTH, msg );
+    
+    msg = StringFromValue( g_UserUnit, nc->GetMaxSkew() );
+    grid->SetCellValue( row, GRID_MAX_SKEW, msg );
+    
+    msg = StringFromValue( g_UserUnit, nc->GetStubLength() );
+    grid->SetCellValue( row, GRID_STUB_LENGTH, msg );
+    
+    msg = StringFromValue( g_UserUnit, nc->GetType() );
+    grid->SetCellValue( row, GRID_TYPE, msg );
+    
+    msg = StringFromValue( g_UserUnit, nc->GetLayer() );
+    grid->SetCellValue( row, GRID_LAYER, msg );
 
 }
 
@@ -552,7 +576,14 @@ static void gridRow2class( wxGrid* grid, int row, NETCLASSPTR nc )
     nc->SetuViaDrill( MYCELL( GRID_uVIADRILL ) );
     nc->SetDiffPairGap( MYCELL( GRID_DIFF_PAIR_GAP ) );
     nc->SetDiffPairWidth( MYCELL( GRID_DIFF_PAIR_WIDTH ) );
-
+    nc->SetMaxVias( MYCELL( GRID_MAX_VIAS ) );
+    nc->SetTopology( MYCELL( GRID_TOPOLOGY ) );
+    nc->SetMinLength( MYCELL( GRID_MIN_LENGTH ) );
+    nc->SetMaxLength( MYCELL( GRID_MAX_LENGTH ) );
+    nc->SetMaxSkew( MYCELL( GRID_MAX_SKEW ) );
+    nc->SetStubLength( MYCELL( GRID_STUB_LENGTH ) );
+    nc->SetType( MYCELL( GRID_TYPE ) );
+    nc->SetLayer( MYCELL( GRID_LAYER ) );
 }
 
 
