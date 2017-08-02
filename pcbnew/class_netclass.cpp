@@ -294,6 +294,40 @@ void NETCLASS::Format( OUTPUTFORMATTER* aFormatter, int aNestLevel, int aControl
         aFormatter->Print( aNestLevel+1, "(diff_pair_width %s)\n", FMT_IU( GetDiffPairWidth() ).c_str() );
     }
 
+    // Save constraint data only if set, to avoid unnecessary incompatibility with previous Pcbnew versions.
+    if( DEFAULT_MAX_VIAS != GetMaxVias() )
+    {
+        aFormatter->Print( aNestLevel+1, "(max_vias %s)\n", FMT_IU( GetMaxVias() ).c_str() );
+    }
+    if( DEFAULT_TOPOLOGY != GetTopology() )
+    {
+        aFormatter->Print( aNestLevel+1, "(topology %s)\n", FMT_IU( GetTopology() ).c_str() );
+    }
+    if( DEFAULT_MIN_LENGTH != GetMinLength() )
+    {
+        aFormatter->Print( aNestLevel+1, "(min_length %s)\n", FMT_IU( GetMinLength() ).c_str() );
+    }
+    if( DEFAULT_MAX_LENGTH != GetMaxLength() )
+    {
+        aFormatter->Print( aNestLevel+1, "(max_length %s)\n", FMT_IU( GetMaxLength() ).c_str() );
+    }
+    if( DEFAULT_MAX_SKEW != GetMaxSkew() )
+    {
+        aFormatter->Print( aNestLevel+1, "(max_skew %s)\n", FMT_IU( GetMaxSkew() ).c_str() );
+    }
+    if( DEFAULT_STUB_LENGTH != GetStubLength() )
+    {
+        aFormatter->Print( aNestLevel+1, "(stub_length %s)\n", FMT_IU( GetStubLength() ).c_str() );
+    }
+    if( DEFAULT_TYPE != GetType() )
+    {
+        aFormatter->Print( aNestLevel+1, "(type %s)\n", FMT_IU( GetType() ).c_str() );
+    }
+    if( DEFAULT_LAYER != GetLayer() )
+    {
+        aFormatter->Print( aNestLevel+1, "(bind_layer %s)\n", FMT_IU( GetLayer() ).c_str() );
+    }
+
 
     for( NETCLASS::const_iterator it = begin(); it != end(); ++it )
         aFormatter->Print( aNestLevel+1, "(add_net %s)\n", aFormatter->Quotew( *it ).c_str() );

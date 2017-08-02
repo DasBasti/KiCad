@@ -38,6 +38,7 @@ attr
 autoplace_cost90
 autoplace_cost180
 aux_axis_origin
+bind_layer
 blind
 blind_buried_vias_allowed
 bold
@@ -98,7 +99,11 @@ layers
 left
 links
 locked
+max_length
+max_skew
+max_vias
 micro
+min_length
 min_thickness
 mirror
 mod_edge_width
@@ -159,6 +164,7 @@ solder_paste_margin_ratio
 solder_paste_ratio
 start
 status
+stub_length
 tags
 target
 title
@@ -169,6 +175,7 @@ thermal_gap
 thermal_bridge_width
 thickness
 top
+topology
 trace_width
 tracks
 trace_min
@@ -178,6 +185,7 @@ thru
 thru_hole
 thru_hole_only
 tstamp
+type
 user
 user_trace_width
 user_via

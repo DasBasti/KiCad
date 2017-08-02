@@ -1306,7 +1306,40 @@ void PCB_PARSER::parseNETCLASS()
             nc->SetDiffPairGap( parseBoardUnits( T_diff_pair_gap ) );
             break;
 
-        case T_add_net:
+	case T_max_vias:
+	    nc->SetMaxVias( parseBoardUnits( T_max_vias ) );
+	    break;
+
+	case T_topology:
+	    nc->SetTopology( parseBoardUnits( T_topology ) );
+	    break;
+	    
+	case T_min_length:
+	    nc->SetMinLength( parseBoardUnits( T_min_length ) );
+	    break;
+	    
+	case T_max_length:
+	    nc->SetMaxLength( parseBoardUnits( T_max_length ) );
+	    break;
+	    
+	case T_max_skew:
+	    nc->SetMaxSkew( parseBoardUnits( T_max_skew ) );
+	    break;
+	    
+	case T_stub_length:
+	    nc->SetStubLength( parseBoardUnits( T_stub_length ) );
+	    break;
+	    
+	case T_type:
+	    nc->SetType( parseBoardUnits( T_type ) );
+	    break;
+	    
+	case T_bind_layer:
+	    nc->SetLayer( parseBoardUnits( T_bind_layer ) );
+	    break;
+	    
+	
+	case T_add_net:
             NeedSYMBOLorNUMBER();
             nc->Add( FromUTF8() );
             break;
