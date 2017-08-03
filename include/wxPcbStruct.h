@@ -57,7 +57,7 @@ class DRAWSEGMENT;
 class GENERAL_COLLECTOR;
 class GENERAL_COLLECTORS_GUIDE;
 class PCB_LAYER_WIDGET;
-class PCB_TRACKS_WDIGET;
+class PCB_TRACKS_WIDGET;
 class MARKER_PCB;
 class BOARD_ITEM;
 class PCB_LAYER_BOX_SELECTOR;
@@ -83,7 +83,7 @@ class PCB_EDIT_FRAME : public PCB_BASE_EDIT_FRAME
 {
     friend struct PCB::IFACE;
     friend class PCB_LAYER_WIDGET;
-    friend class PCB_TRACKS_WDIGET;
+    friend class PCB_TRACKS_WIDGET;
 
     void updateTraceWidthSelectBox();
     void updateViaSizeSelectBox();
@@ -94,7 +94,7 @@ class PCB_EDIT_FRAME : public PCB_BASE_EDIT_FRAME
 
 protected:
     PCB_LAYER_WIDGET* m_Layers;
-    PCB_TRACKS_WDIGET* m_Tracks;
+    PCB_TRACKS_WIDGET* m_Tracks;
 
     DRC* m_drc;                                 ///< the DRC controller, see drc.cpp
 
