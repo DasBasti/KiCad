@@ -197,6 +197,12 @@ void PCB_EDIT_FRAME::OnUpdateShowLayerManager( wxUpdateUIEvent& aEvent )
     aEvent.Check( m_auimgr.GetPane( wxT( "m_LayersManagerToolBar" ) ).IsShown() );
 }
 
+void PCB_EDIT_FRAME::OnUpdateTrackLengthManager( wxUpdateUIEvent& aEvent )
+{
+    aEvent.Check( m_auimgr.GetPane( wxT( "m_TrackLengthManagerToolBar" ) ).IsShown() );
+}
+
+
 void PCB_EDIT_FRAME::OnUpdateShowMicrowaveToolbar( wxUpdateUIEvent& aEvent )
 {
     aEvent.Check( m_auimgr.GetPane( wxT( "m_microWaveToolBar" ) ).IsShown() );

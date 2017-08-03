@@ -206,6 +206,7 @@ set( PCBNEW_CLASS_SRCS
     build_BOM_from_board.cpp
     class_pcb_layer_widget.cpp
     class_pcb_layer_box_selector.cpp
+    class_pcb_tracks_widget.cpp
     clean.cpp
     connect.cpp
     controle.cpp
@@ -277,6 +278,7 @@ set( PCBNEW_CLASS_SRCS
     toolbars_update_user_interface.cpp
     tracepcb.cpp
     tr_modif.cpp
+    tracks_widget.cpp
     undo_redo.cpp
     zones_convert_brd_items_to_polygons_with_Boost.cpp
     zones_convert_to_polygons_aux_functions.cpp

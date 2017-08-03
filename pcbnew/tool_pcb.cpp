@@ -812,6 +812,16 @@ void PCB_EDIT_FRAME::OnSelectOptionToolbar( wxCommandEvent& event )
                                 _( "Hide &Layers Manager" ) : _( "Show &Layers Manager" ) );
         break;
 
+    case ID_TB_OPTIONS_SHOW_MANAGE_TRACK_LENGTH_MANAGER:
+        // show auxiliary Vertical layers and visibility manager toolbar
+        m_show_track_length_manager_tools = state;
+        m_auimgr.GetPane( wxT( "m_TrackLengthManagerToolBar" ) ).Show( m_show_track_length_manager_tools );
+        m_auimgr.Update();
+
+        GetMenuBar()->SetLabel( ID_MENU_PCB_SHOW_HIDE_TRACK_LENGTH_MANAGER,
+                                m_show_track_length_manager_tools ?
+                                _( "Hide &Track Length Manager" ) : _( "Show &Track Length Manager" ) );
+        break;
     default:
         DisplayErrorMessage( this,
                       _( "Invalid toolbar option" ),

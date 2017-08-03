@@ -49,6 +49,7 @@
 #include <layer_widget.h>
 #include <dialog_design_rules.h>
 #include <class_pcb_layer_widget.h>
+#include <class_pcb_tracks_widget.h>
 #include <hotkeys.h>
 #include <pcbnew_config.h>
 #include <module_editor_frame.h>
@@ -92,6 +93,7 @@ static const wxString MagneticPadsEntry =       "PcbMagPadOpt";
 static const wxString MagneticTracksEntry =     "PcbMagTrackOpt";
 static const wxString ShowMicrowaveEntry =      "ShowMicrowaveTools";
 static const wxString ShowLayerManagerEntry =   "ShowLayerManagerTools";
+static const wxString ShowTrackLengthManagerEntry =   "ShowTrackLengthManagerTools";
 static const wxString ShowPageLimitsEntry =     "ShowPageLimits";
 
 ///@}
@@ -154,6 +156,7 @@ BEGIN_EVENT_TABLE( PCB_EDIT_FRAME, PCB_BASE_FRAME )
     EVT_MENU_RANGE( ID_PREFERENCES_HOTKEY_START, ID_PREFERENCES_HOTKEY_END,
                     PCB_EDIT_FRAME::Process_Config )
     EVT_MENU( ID_MENU_PCB_SHOW_HIDE_LAYERS_MANAGER, PCB_EDIT_FRAME::Process_Config )
+    EVT_MENU( ID_MENU_PCB_SHOW_HIDE_TRACK_LENGTH_MANAGER, PCB_EDIT_FRAME::Process_Config )
     EVT_MENU( ID_MENU_PCB_SHOW_HIDE_MUWAVE_TOOLBAR, PCB_EDIT_FRAME::Process_Config )
     EVT_MENU( wxID_PREFERENCES, PCB_EDIT_FRAME::Process_Config )
     EVT_MENU( ID_PCB_LAYERS_SETUP, PCB_EDIT_FRAME::Process_Config )
@@ -256,6 +259,9 @@ BEGIN_EVENT_TABLE( PCB_EDIT_FRAME, PCB_BASE_FRAME )
     EVT_TOOL( ID_TB_OPTIONS_SHOW_MANAGE_LAYERS_VERTICAL_TOOLBAR,
               PCB_EDIT_FRAME::OnSelectOptionToolbar )
 
+    EVT_TOOL( ID_TB_OPTIONS_SHOW_MANAGE_TRACK_LENGTH_MANAGER,
+              PCB_EDIT_FRAME::OnSelectOptionToolbar )
+
     // Vertical main toolbar:
     EVT_TOOL( ID_NO_TOOL_SELECTED, PCB_EDIT_FRAME::OnSelectTool )
     EVT_TOOL( ID_ZOOM_SELECTION, PCB_EDIT_FRAME::OnSelectTool )
@@ -293,6 +299,8 @@ BEGIN_EVENT_TABLE( PCB_EDIT_FRAME, PCB_BASE_FRAME )
                    PCB_EDIT_FRAME::OnUpdateShowLayerManager )
     EVT_UPDATE_UI( ID_TB_OPTIONS_SHOW_EXTRA_VERTICAL_TOOLBAR_MICROWAVE,
                    PCB_EDIT_FRAME::OnUpdateShowMicrowaveToolbar )
+    EVT_UPDATE_UI( ID_TB_OPTIONS_SHOW_MANAGE_TRACK_LENGTH_MANAGER,
+                   PCB_EDIT_FRAME::OnUpdateTrackLengthManager )    
     EVT_UPDATE_UI( ID_NO_TOOL_SELECTED, PCB_EDIT_FRAME::OnUpdateVerticalToolbar )
     EVT_UPDATE_UI( ID_ZOOM_SELECTION, PCB_EDIT_FRAME::OnUpdateVerticalToolbar )
     EVT_UPDATE_UI( ID_AUX_TOOLBAR_PCB_TRACK_WIDTH, PCB_EDIT_FRAME::OnUpdateSelectTrackWidth )
@@ -332,6 +340,7 @@ PCB_EDIT_FRAME::PCB_EDIT_FRAME( KIWAY* aKiway, wxWindow* aParent ) :
     m_SelLayerBox = NULL;
     m_show_microwave_tools = false;
     m_show_layer_manager_tools = true;
+    m_show_track_length_manager_tools = true;
     m_hotkeysDescrList = g_Board_Editor_Hokeys_Descr;
     m_hasAutoSave = true;
     m_microWaveToolBar = NULL;
@@ -360,6 +369,7 @@ PCB_EDIT_FRAME::PCB_EDIT_FRAME( KIWAY* aKiway, wxWindow* aParent ) :
         pointSize = (pointSize * 8) / 10;
 
     m_Layers = new PCB_LAYER_WIDGET( this, GetCanvas(), pointSize );
+    m_Tracks = new PCB_TRACKS_WIDGET( this, GetCanvas(), pointSize );
 
     m_drc = new DRC( this );        // these 2 objects point to each other
 
@@ -434,8 +444,10 @@ PCB_EDIT_FRAME::PCB_EDIT_FRAME( KIWAY* aKiway, wxWindow* aParent ) :
         m_auimgr.AddPane( m_drawToolBar,
                           wxAuiPaneInfo( vert ).Name( wxT( "m_VToolBar" ) ).Right().Layer( 2 ) );
 
+    // Add the track length widget left of the layer manager
+    m_auimgr.AddPane( m_Layers, lyrs.Name( wxT( "m_TrackLengthManagerToolBar" ) ).Right().Layer( 3 ) );
     // Add the layer manager ( most right side of pcbframe )
-    m_auimgr.AddPane( m_Layers, lyrs.Name( wxT( "m_LayersManagerToolBar" ) ).Right().Layer( 3 ) );
+    m_auimgr.AddPane( m_Layers, lyrs.Name( wxT( "m_LayersManagerToolBar" ) ).Right().Layer( 4 ) );
 
     if( m_optionsToolBar )    // The left vertical toolbar (fast acces display options of Pcbnew)
     {
@@ -443,6 +455,7 @@ PCB_EDIT_FRAME::PCB_EDIT_FRAME( KIWAY* aKiway, wxWindow* aParent ) :
                           wxAuiPaneInfo( vert ).Name( wxT( "m_optionsToolBar" ) ).Left().Layer(1) );
 
         m_auimgr.GetPane( wxT( "m_LayersManagerToolBar" ) ).Show( m_show_layer_manager_tools );
+        m_auimgr.GetPane( wxT( "m_TrackLengthManagerToolBar" ) ).Show( m_show_track_length_manager_tools );
         m_auimgr.GetPane( wxT( "m_microWaveToolBar" ) ).Show( m_show_microwave_tools );
     }
 
@@ -809,6 +822,7 @@ void PCB_EDIT_FRAME::LoadSettings( wxConfigBase* aCfg )
     aCfg->Read( MagneticTracksEntry, &g_MagneticTrackOption );
     aCfg->Read( ShowMicrowaveEntry, &m_show_microwave_tools );
     aCfg->Read( ShowLayerManagerEntry, &m_show_layer_manager_tools );
+    aCfg->Read( ShowTrackLengthManagerEntry, &m_show_track_length_manager_tools );
     aCfg->Read( ShowPageLimitsEntry, &m_showPageLimits );
 }
 
@@ -825,6 +839,7 @@ void PCB_EDIT_FRAME::SaveSettings( wxConfigBase* aCfg )
     aCfg->Write( MagneticTracksEntry, (long) g_MagneticTrackOption );
     aCfg->Write( ShowMicrowaveEntry, (long) m_show_microwave_tools );
     aCfg->Write( ShowLayerManagerEntry, (long)m_show_layer_manager_tools );
+    aCfg->Write( ShowTrackLengthManagerEntry, (long)m_show_track_length_manager_tools );
     aCfg->Write( ShowPageLimitsEntry, m_showPageLimits );
 }
 

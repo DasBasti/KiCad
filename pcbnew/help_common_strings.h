@@ -23,4 +23,6 @@
 
 #define HELP_SHOW_HIDE_LAYERMANAGER _( "Show/hide the layers manager toolbar" )
 
+#define HELP_SHOW_HIDE_TRACKLENGTHMANAGER _( "Show/hide the track length manager toolbar" )
+
 #define HELP_SHOW_HIDE_MICROWAVE_TOOLS _( "Show/hide microwave toolbar\n(Experimental feature)" )

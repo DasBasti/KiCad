@@ -57,6 +57,7 @@ class DRAWSEGMENT;
 class GENERAL_COLLECTOR;
 class GENERAL_COLLECTORS_GUIDE;
 class PCB_LAYER_WIDGET;
+class PCB_TRACKS_WDIGET;
 class MARKER_PCB;
 class BOARD_ITEM;
 class PCB_LAYER_BOX_SELECTOR;
@@ -82,6 +83,7 @@ class PCB_EDIT_FRAME : public PCB_BASE_EDIT_FRAME
 {
     friend struct PCB::IFACE;
     friend class PCB_LAYER_WIDGET;
+    friend class PCB_TRACKS_WDIGET;
 
     void updateTraceWidthSelectBox();
     void updateViaSizeSelectBox();
@@ -92,6 +94,7 @@ class PCB_EDIT_FRAME : public PCB_BASE_EDIT_FRAME
 
 protected:
     PCB_LAYER_WIDGET* m_Layers;
+    PCB_TRACKS_WDIGET* m_Tracks;
 
     DRC* m_drc;                                 ///< the DRC controller, see drc.cpp
 
@@ -241,7 +244,8 @@ public:
 
     bool m_show_microwave_tools;
     bool m_show_layer_manager_tools;
-
+    bool m_show_track_length_manager_tools;
+    
     virtual ~PCB_EDIT_FRAME();
 
     /**
@@ -311,6 +315,7 @@ public:
     void OnUpdateTraceDrawMode( wxUpdateUIEvent& aEvent );
     void OnUpdateHighContrastDisplayMode( wxUpdateUIEvent& aEvent );
     void OnUpdateShowLayerManager( wxUpdateUIEvent& aEvent );
+    void OnUpdateTrackLengthManager( wxUpdateUIEvent& aEvent );
     void OnUpdateShowMicrowaveToolbar( wxUpdateUIEvent& aEvent );
     void OnUpdateVerticalToolbar( wxUpdateUIEvent& aEvent );
     void OnUpdateSelectViaSize( wxUpdateUIEvent& aEvent );

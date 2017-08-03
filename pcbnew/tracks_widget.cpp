@@ -30,7 +30,7 @@
 */
 
 
-//#define STAND_ALONE     1   // define to enable test program for LAYER_WIDGET
+//#define STAND_ALONE     1   // define to enable test program for IDGET
 
 
 #include <tracks_widget.h>
@@ -121,25 +121,6 @@ void TRACK_WIDGET::OnLeftDownLayers( wxMouseEvent& event )
 
     if( OnLayerSelect( layer ) )    // if client allows this change.
         SelectLayerRow( row );
-
-    passOnFocus();
-}
-
-
-void TRACK_WIDGET::OnLayerSwatchChanged( wxCommandEvent& aEvent )
-{
-    auto eventSource = static_cast<COLOR_SWATCH*>( aEvent.GetEventObject() );
-
-    COLOR4D newColor = eventSource->GetSwatchColor();
-
-    LAYER_NUM layer = getDecodedId( eventSource->GetId() );
-
-    // tell the client code.
-    OnLayerColorChange( layer, newColor );
-
-    // notify others
-    wxCommandEvent event( EVT_LAYER_COLOR_CHANGE );
-    wxPostEvent( this, event );
 
     passOnFocus();
 }
@@ -260,7 +241,7 @@ void TRACK_WIDGET::insertLayerRow( int aRow, const ROW& aSpec )
     auto sbm = new INDICATOR_ICON( m_LayerScrolledWindow, iconProvider,
                                    ROW_ICON_PROVIDER::STATE::OFF,
                                    encodeId( col, aSpec.id ) );
-    sbm->Bind( wxEVT_LEFT_DOWN, &LAYER_WIDGET::OnLeftDownLayers, this );
+    sbm->Bind( wxEVT_LEFT_DOWN, &TRACK_WIDGET::OnLeftDownLayers, this );
     m_LayersFlexGridSizer->wxSizer::Insert( index+col, sbm, 0, flags );
 
     // column 1 (COLUMN_COLORBM)
@@ -268,8 +249,8 @@ void TRACK_WIDGET::insertLayerRow( int aRow, const ROW& aSpec )
 
     auto bmb = new COLOR_SWATCH( m_LayerScrolledWindow, aSpec.color, encodeId( col, aSpec.id ),
                                  AreArbitraryColorsAllowed() );
-    bmb->Bind( wxEVT_LEFT_DOWN, &LAYER_WIDGET::OnLeftDownLayers, this );
-    bmb->Bind( COLOR_SWATCH_CHANGED, &LAYER_WIDGET::OnLayerSwatchChanged, this );
+    bmb->Bind( wxEVT_LEFT_DOWN, &TRACK_WIDGET::OnLeftDownLayers, this );
+//    bmb->Bind( COLOR_SWATCH_CHANGED, &TRACK_WIDGET::OnLayerSwatchChanged, this );
     bmb->SetToolTip( _("Left double click or middle click for color change, right click for menu" ) );
     m_LayersFlexGridSizer->wxSizer::Insert( index+col, bmb, 0, flags );
 
@@ -277,7 +258,7 @@ void TRACK_WIDGET::insertLayerRow( int aRow, const ROW& aSpec )
     col = COLUMN_COLOR_LYR_CB;
     wxCheckBox* cb = new wxCheckBox( m_LayerScrolledWindow, encodeId( col, aSpec.id ), wxEmptyString );
     cb->SetValue( aSpec.state );
-    cb->Bind( wxEVT_COMMAND_CHECKBOX_CLICKED, &LAYER_WIDGET::OnLayerCheckBox, this );
+    cb->Bind( wxEVT_COMMAND_CHECKBOX_CLICKED, &TRACK_WIDGET::OnLayerCheckBox, this );
     cb->SetToolTip( _( "Enable this for visibility" ) );
     m_LayersFlexGridSizer->wxSizer::Insert( index+col, cb, 0, flags );
 
@@ -285,7 +266,7 @@ void TRACK_WIDGET::insertLayerRow( int aRow, const ROW& aSpec )
     col = COLUMN_COLOR_LYRNAME;
     wxStaticText* st = new wxStaticText( m_LayerScrolledWindow, encodeId( col, aSpec.id ), aSpec.rowName );
     shrinkFont( st, m_PointSize );
-    st->Bind( wxEVT_LEFT_DOWN, &LAYER_WIDGET::OnLeftDownLayers, this );
+    st->Bind( wxEVT_LEFT_DOWN, &TRACK_WIDGET::OnLeftDownLayers, this );
     st->SetToolTip( aSpec.tooltip );
     m_LayersFlexGridSizer->wxSizer::Insert( index+col, st, 0, flags );
 }
@@ -305,7 +286,7 @@ void TRACK_WIDGET::insertRenderRow( int aRow, const ROW& aSpec )
     {
         auto bmb = new COLOR_SWATCH( m_RenderScrolledWindow, aSpec.color, encodeId( col, aSpec.id ),
                                      AreArbitraryColorsAllowed() );
-        bmb->Bind( COLOR_SWATCH_CHANGED, &LAYER_WIDGET::OnRenderSwatchChanged, this );
+        bmb->Bind( COLOR_SWATCH_CHANGED, &TRACK_WIDGET::OnRenderSwatchChanged, this );
         bmb->SetToolTip( _( "Left double click or middle click for color change" ) );
         m_RenderFlexGridSizer->wxSizer::Insert( index+col, bmb, 0, flags );
 
@@ -324,7 +305,7 @@ void TRACK_WIDGET::insertRenderRow( int aRow, const ROW& aSpec )
                         aSpec.rowName, wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT );
     shrinkFont( cb, m_PointSize );
     cb->SetValue( aSpec.state );
-    cb->Bind( wxEVT_COMMAND_CHECKBOX_CLICKED, &LAYER_WIDGET::OnRenderCheckBox, this );
+    cb->Bind( wxEVT_COMMAND_CHECKBOX_CLICKED, &TRACK_WIDGET::OnRenderCheckBox, this );
     cb->SetToolTip( aSpec.tooltip );
     m_RenderFlexGridSizer->wxSizer::Insert( index+col, cb, 0, flags );
 }
@@ -338,7 +319,7 @@ void TRACK_WIDGET::passOnFocus()
 
 //-----<public>-------------------------------------------------------
 
-TRACK_WIDGET::LAYER_WIDGET( wxWindow* aParent, wxWindow* aFocusOwner, int aPointSize,
+TRACK_WIDGET::TRACK_WIDGET( wxWindow* aParent, wxWindow* aFocusOwner, int aPointSize,
         wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) :
     wxPanel( aParent, id, pos, size, style )
 {
@@ -414,13 +395,13 @@ TRACK_WIDGET::LAYER_WIDGET( wxWindow* aParent, wxWindow* aFocusOwner, int aPoint
     m_CurrentRow = -1;  // hide the arrow initially
 
     // trap the tab changes so that we can call passOnFocus().
-    m_notebook->Bind( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, &LAYER_WIDGET::OnTabChange, this );
+    m_notebook->Bind( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, &TRACK_WIDGET::OnTabChange, this );
 
     Layout();
 }
 
 
-TRACK_WIDGET::~LAYER_WIDGET()
+TRACK_WIDGET::~TRACK_WIDGET()
 {
 }
 
@@ -704,7 +685,7 @@ class MYFRAME : public wxFrame
         // out because this source module wants to know nothing of BOARDs
         // to maximize re-use.
         MYLAYERS( wxWindow* aParent ) :
-            LAYER_WIDGET( aParent, aParent  )
+            TRACK_WIDGET( aParent, aParent  )
         {
         }
 
@@ -765,7 +746,7 @@ public:
         lw->AppendLayerRows( layerRows, DIM(layerRows) );
 
         // add some render rows
-        static const LAYER_WIDGET::ROW renderRows[] = {
+        static const TRACK_WIDGET::ROW renderRows[] = {
             TRACK_WIDGET::ROW( wxT("With Very Large Ears"), 0, COLOR4D::UNSPECIFIED, wxT("Spock here") ),
             TRACK_WIDGET::ROW( wxT("With Legs"), 1, YELLOW ),
             TRACK_WIDGET::ROW( wxT("With Oval Eyes"), 1, BROWN, wxT("My eyes are upon you") ),

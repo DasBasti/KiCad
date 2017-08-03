@@ -128,6 +128,9 @@ void PCB_EDIT_FRAME::ReCreateMenuBar()
     configmenu->SetLabel( ID_MENU_PCB_SHOW_HIDE_LAYERS_MANAGER,
                           m_show_layer_manager_tools ?
                           _( "Hide La&yers Manager" ) : _("Show La&yers Manager" ) );
+    configmenu->SetLabel( ID_TB_OPTIONS_SHOW_MANAGE_TRACK_LENGTH_MANAGER,
+                          m_show_track_length_manager_tools ?
+                          _( "Hide &Track Length Manager" ) : _("Show &Track Length Manager" ) );
     configmenu->SetLabel( ID_MENU_PCB_SHOW_HIDE_MUWAVE_TOOLBAR,
                           m_show_microwave_tools ?
                           _( "Hide Microwa&ve Toolbar" ): _( "Show Microwa&ve Toolbar" ) );
@@ -196,6 +199,11 @@ void preparePreferencesMenu( PCB_EDIT_FRAME* aFrame, wxMenu* aParentMenu )
                  _( "Hide La&yers Manager" ),
                  HELP_SHOW_HIDE_LAYERMANAGER,
                  KiBitmap( layers_manager_xpm ) );
+
+    AddMenuItem( aParentMenu, ID_TB_OPTIONS_SHOW_MANAGE_TRACK_LENGTH_MANAGER,
+                 _( "Hide &Track Length Manager" ),
+                 HELP_SHOW_HIDE_TRACKLENGTHMANAGER,
+                 KiBitmap( add_tracks_xpm ) );
 
     AddMenuItem( aParentMenu, ID_MENU_PCB_SHOW_HIDE_MUWAVE_TOOLBAR,
                  _( "Hide Microwa&ve Toolbar" ),

@@ -80,6 +80,16 @@ void PCB_EDIT_FRAME::Process_Config( wxCommandEvent& event )
                                 _("Hide &Layers Manager" ) : _("Show &Layers Manager" ));
         break;
 
+    case ID_MENU_PCB_SHOW_HIDE_TRACK_LENGTH_MANAGER:
+        m_show_track_length_manager_tools = ! m_show_track_length_manager_tools;
+        m_auimgr.GetPane( wxT( "m_TrackLengthManagerToolBar" ) ).Show( m_show_track_length_manager_tools );
+        m_auimgr.Update();
+
+        GetMenuBar()->SetLabel( ID_MENU_PCB_SHOW_HIDE_LAYERS_MANAGER,
+                                m_show_track_length_manager_tools ?
+                                _("Hide &Track Length Manager" ) : _("Show &Track Length Manager" ));
+        break;
+
     case ID_MENU_PCB_SHOW_HIDE_MUWAVE_TOOLBAR:
         m_show_microwave_tools  = ! m_show_microwave_tools;
         m_auimgr.GetPane( wxT( "m_microWaveToolBar" ) ).Show( m_show_microwave_tools );
