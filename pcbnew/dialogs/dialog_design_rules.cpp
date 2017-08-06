@@ -67,8 +67,8 @@ enum {
     GRID_MAX_LENGTH,
     GRID_MAX_SKEW,
     GRID_STUB_LENGTH,
-    GRID_TYPE,
-    GRID_LAYER
+    GRID_SIGNAL_TYPE,
+    GRID_RESTRICT_LAYERS
 };
 
 const wxString DIALOG_DESIGN_RULES::wildCard = _( "* (Any)" );
@@ -173,6 +173,24 @@ DIALOG_DESIGN_RULES::DIALOG_DESIGN_RULES( PCB_EDIT_FRAME* parent ) :
 {
     m_Parent = parent;
     SetAutoLayout( true );
+    
+//    signaltypes.Alloc(4);
+//    signaltopologies.Alloc(9);
+
+    signaltypes.Add(wxT("-"));
+    signaltypes.Add(wxT("MIXED"));
+    signaltypes.Add(wxT("POWER"));
+    signaltypes.Add(wxT("SIGNAL"));
+    
+    signaltopologies.Add(wxT("-"));
+    signaltopologies.Add(wxT("STAR"));
+    signaltopologies.Add(wxT("T-TREE"));
+    signaltopologies.Add(wxT("FLYBY"));
+    signaltopologies.Add(wxT("HORIZONTAL"));
+    signaltopologies.Add(wxT("VERTICAL"));
+    signaltopologies.Add(wxT("SIMPLE_DAISY_CHAIN"));
+    signaltopologies.Add(wxT("MIDDRIVEN_DAISY_CHAIN"));
+    signaltopologies.Add(wxT("MULTIPOINT"));
 
     m_initialRowLabelsSize = m_grid->GetRowLabelSize();
     EnsureGridColumnWidths( this, m_grid );   // override any column widths set by wxformbuilder.
@@ -218,6 +236,7 @@ DIALOG_DESIGN_RULES::DIALOG_DESIGN_RULES( PCB_EDIT_FRAME* parent ) :
     m_gridTrackWidthList->SetTabBehaviour( wxGrid::Tab_Leave );
 
     Layout();
+
 
     // Now all widgets have the size fixed, call FinishDialogSettings
     FinishDialogSettings();
@@ -530,13 +549,12 @@ static void class2gridRow( wxGrid* grid, int row, NETCLASSPTR nc )
     grid->SetCellValue( row, GRID_STUB_LENGTH, msg );
     
     msg = StringFromValue( g_UserUnit, nc->GetType() );
-    grid->SetCellValue( row, GRID_TYPE, msg );
+    grid->SetCellValue( row, GRID_SIGNAL_TYPE, msg );
     
     msg = StringFromValue( g_UserUnit, nc->GetLayer() );
-    grid->SetCellValue( row, GRID_LAYER, msg );
+    grid->SetCellValue( row, GRID_RESTRICT_LAYERS, msg );
 
 }
-
 
 void DIALOG_DESIGN_RULES::InitRulesList()
 {
@@ -550,7 +568,15 @@ void DIALOG_DESIGN_RULES::InitRulesList()
 
     // enter the Default NETCLASS.
     class2gridRow( m_grid, 0, netclasses.GetDefault() );
+    wxString st = m_grid->GetCellValue(0 ,GRID_TOPOLOGY);
+// no netconstraints for default class
+//    m_grid->SetCellEditor(0, GRID_TOPOLOGY, new wxGridCellChoiceEditor(signaltopologies, false)); // Add dropdown to Cell
+    m_grid->SetCellValue(0, GRID_TOPOLOGY, signaltopologies[wxAtoi( m_grid->GetCellValue(0, GRID_TOPOLOGY) )] ); // replace number by string
+//    m_grid->SetCellEditor(0, GRID_SIGNAL_TYPE, new wxGridCellChoiceEditor(signaltypes, false)); // Add dropdown to Cell
+    m_grid->SetCellValue(0, GRID_SIGNAL_TYPE, signaltypes[wxAtoi( m_grid->GetCellValue(0, GRID_SIGNAL_TYPE) )] ); // lso replace number by string
 
+    
+    
     // enter others netclasses
     int row = 1;
 
@@ -559,6 +585,10 @@ void DIALOG_DESIGN_RULES::InitRulesList()
         NETCLASSPTR netclass = i->second;
 
         class2gridRow( m_grid, row, netclass );
+        m_grid->SetCellEditor(row, GRID_TOPOLOGY, new wxGridCellChoiceEditor(signaltopologies, false)); // Add dropdown to Cell
+        m_grid->SetCellValue(row, GRID_TOPOLOGY, signaltopologies[wxAtoi( m_grid->GetCellValue(row, GRID_TOPOLOGY) )] ); // replace number by string
+        m_grid->SetCellEditor(row, GRID_SIGNAL_TYPE, new wxGridCellChoiceEditor(signaltypes, false)); // Add dropdown to Cell
+        m_grid->SetCellValue(row, GRID_SIGNAL_TYPE, signaltypes[wxAtoi( m_grid->GetCellValue(row, GRID_SIGNAL_TYPE) )] ); // lso replace number by string
     }
 }
 
@@ -577,15 +607,30 @@ static void gridRow2class( wxGrid* grid, int row, NETCLASSPTR nc )
     nc->SetDiffPairGap( MYCELL( GRID_DIFF_PAIR_GAP ) );
     nc->SetDiffPairWidth( MYCELL( GRID_DIFF_PAIR_WIDTH ) );
     nc->SetMaxVias( MYCELL( GRID_MAX_VIAS ) );
-    nc->SetTopology( MYCELL( GRID_TOPOLOGY ) );
     nc->SetMinLength( MYCELL( GRID_MIN_LENGTH ) );
     nc->SetMaxLength( MYCELL( GRID_MAX_LENGTH ) );
     nc->SetMaxSkew( MYCELL( GRID_MAX_SKEW ) );
     nc->SetStubLength( MYCELL( GRID_STUB_LENGTH ) );
-    nc->SetType( MYCELL( GRID_TYPE ) );
-    nc->SetLayer( MYCELL( GRID_LAYER ) );
+    nc->SetLayer( MYCELL( GRID_RESTRICT_LAYERS ) );
+    nc->SetTopology( MYCELL( GRID_TOPOLOGY ) );
+    nc->SetType( MYCELL( GRID_SIGNAL_TYPE ) );
 }
 
+static int convertStringToId( wxGrid* grid, int row, int col, wxArrayString* list)
+{
+    int field = 0;
+    for( wxArrayString::iterator id = list->begin(); id!=list->end(); ++id, ++field )
+    {
+        wxString eins = id->GetData();
+        wxString zwei = grid->GetCellValue(row, col);
+        int comp = id->compare( grid->GetCellValue(row, col) );
+        if( 0 == id->compare( grid->GetCellValue(row, col) ) )
+        {
+            return field; // break loop
+        }
+    }
+    return field;
+}
 
 void DIALOG_DESIGN_RULES::CopyRulesListToBoard()
 {
@@ -614,6 +659,10 @@ void DIALOG_DESIGN_RULES::CopyRulesListToBoard()
             continue;
         }
 
+        // convert value from string to int
+        nc->SetTopology( convertStringToId( m_grid, row, GRID_TOPOLOGY, &signaltopologies) );
+        nc->SetType( convertStringToId( m_grid, row, GRID_SIGNAL_TYPE, &signaltypes) );
+        
         gridRow2class( m_grid, row, nc );
     }
 
@@ -761,7 +810,7 @@ void DIALOG_DESIGN_RULES::OnAddNetclassClick( wxCommandEvent& event )
     if( class_name.IsEmpty() )
         return;         // empty name not allowed
 
-    // The name must dot exists:
+    // The name must not exists:
     for( int ii = 0; ii < m_grid->GetNumberRows(); ii++ )
     {
         wxString value;
@@ -774,8 +823,15 @@ void DIALOG_DESIGN_RULES::OnAddNetclassClick( wxCommandEvent& event )
         }
     }
 
-    m_grid->AppendRows();
-    m_grid->SetRowLabelValue( m_grid->GetNumberRows() - 1, class_name );
+    m_grid->AppendRows();    
+    int row = m_grid->GetNumberRows() - 1;
+
+    m_grid->SetRowLabelValue( row, class_name );
+    m_grid->SetCellEditor(row, GRID_TOPOLOGY, new wxGridCellChoiceEditor(signaltopologies, false)); // Add dropdown to Cell
+    m_grid->SetCellValue(row, GRID_TOPOLOGY, signaltopologies[0] ); // replace number by string
+    m_grid->SetCellEditor(row, GRID_SIGNAL_TYPE, new wxGridCellChoiceEditor(signaltypes, false)); // Add dropdown to Cell
+    m_grid->SetCellValue(row, GRID_SIGNAL_TYPE, signaltypes[0] ); // lso replace number by string
+ 
 
     // Copy values of the default class:
     int irow = m_grid->GetNumberRows() - 1;
@@ -845,6 +901,27 @@ void DIALOG_DESIGN_RULES::OnRemoveNetclassClick( wxCommandEvent& event )
         InitializeRulesSelectionBoxes();
         EnsureGridRowTitleWidth( this, m_grid, m_initialRowLabelsSize );
     }
+}
+
+/**
+ * Function OnOKButtonClick 
+ * is called when the dialog is closed and we need to translate the Type 
+ * and Topology into int values
+ */
+void DIALOG_DESIGN_RULES::OnOKButtonClick( wxCommandEvent& event )
+{
+    wxString msg;
+    m_grid->HideCellEditControl();
+    for( int row = 1; row < m_grid->GetNumberRows();  ++row )
+    {       
+        msg = wxString::Format( wxT( "%d" ), convertStringToId(m_grid, row, GRID_TOPOLOGY, &signaltopologies) );
+        m_grid->SetCellValue(row, GRID_TOPOLOGY, msg );
+
+        msg = wxString::Format( wxT( "%d" ), convertStringToId( m_grid, row, GRID_SIGNAL_TYPE, &signaltypes) );
+        m_grid->SetCellValue(row, GRID_SIGNAL_TYPE, msg  );
+    }
+    
+    event.Skip();
 }
 
 /**

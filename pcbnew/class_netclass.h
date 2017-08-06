@@ -242,16 +242,16 @@ public:
     int     GetuViaDrill() const            { return m_uViaDrill; }
     void    SetuViaDrill( int aSize )       { m_uViaDrill = aSize; }
 
-    int     GetDiffPairWidth() const            { return m_diffPairWidth; }
-    void    SetDiffPairWidth( int aSize )       { m_diffPairWidth = aSize; }
+    int     GetDiffPairWidth() const        { return m_diffPairWidth; }
+    void    SetDiffPairWidth( int aSize )   { m_diffPairWidth = aSize; }
 
-    int     GetDiffPairGap() const            { return m_diffPairGap; }
-    void    SetDiffPairGap( int aSize )       { m_diffPairGap = aSize; }
+    int     GetDiffPairGap() const          { return m_diffPairGap; }
+    void    SetDiffPairGap( int aSize )     { m_diffPairGap = aSize; }
 
     int     GetMaxVias() const              { return m_max_vias; }
     void    SetMaxVias( int aNumber )       { m_max_vias = aNumber; }
     
-    int     GetTopology() const            { return m_topology; }
+    int     GetTopology() const             { return m_topology; }
     void    SetTopology( int aTopology )    { m_topology = aTopology; }
     
     int     GetMinLength() const            { return m_min_length; }

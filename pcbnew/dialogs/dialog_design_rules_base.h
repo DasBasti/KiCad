@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Jul 27 2017)
+// C++ code generated with wxFormBuilder (version Feb 16 2016)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -114,6 +114,7 @@ class DIALOG_DESIGN_RULES_BASE : public DIALOG_SHIM
 		virtual void OnRightCBSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRightSelectAllButton( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAllowMicroVias( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnOKButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		
 	
 	public:

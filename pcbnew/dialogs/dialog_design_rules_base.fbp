@@ -787,8 +787,6 @@
                                                                     <property name="window_style"></property>
                                                                     <event name="OnChar"></event>
                                                                     <event name="OnCombobox">OnLeftCBSelection</event>
-                                                                    <event name="OnComboboxCloseup"></event>
-                                                                    <event name="OnComboboxDropdown"></event>
                                                                     <event name="OnEnterWindow"></event>
                                                                     <event name="OnEraseBackground"></event>
                                                                     <event name="OnKeyDown"></event>
@@ -1363,8 +1361,6 @@
                                                                     <property name="window_style"></property>
                                                                     <event name="OnChar"></event>
                                                                     <event name="OnCombobox">OnRightCBSelection</event>
-                                                                    <event name="OnComboboxCloseup"></event>
-                                                                    <event name="OnComboboxDropdown"></event>
                                                                     <event name="OnEnterWindow"></event>
                                                                     <event name="OnEraseBackground"></event>
                                                                     <event name="OnKeyDown"></event>
@@ -3985,7 +3981,7 @@
                         <event name="OnContextHelpButtonClick"></event>
                         <event name="OnHelpButtonClick"></event>
                         <event name="OnNoButtonClick"></event>
-                        <event name="OnOKButtonClick"></event>
+                        <event name="OnOKButtonClick">OnOKButtonClick</event>
                         <event name="OnSaveButtonClick"></event>
                         <event name="OnYesButtonClick"></event>
                     </object>

@@ -90,13 +90,16 @@ private:
     std::vector <VIA_DIMENSION> m_ViasDimensionsList;
     std::vector <int> m_TracksWidthList;
 
+    wxArrayString signaltypes; // Make table strings
+    wxArrayString signaltopologies; // Make table strings
+
 private:
     void OnNetClassesNameLeftClick( wxGridEvent& event ) override { event.Skip(); }
     void OnNetClassesNameRightClick( wxGridEvent& event ) override { event.Skip(); }
     void OnAddNetclassClick( wxCommandEvent& event ) override;
     void OnRemoveNetclassClick( wxCommandEvent& event ) override;
     void OnAllowMicroVias( wxCommandEvent& event ) override;
-
+    void OnOKButtonClick( wxCommandEvent& event ) override;
     /*
      * Called on "Move Up" button click
      * the selected(s) rules are moved up
