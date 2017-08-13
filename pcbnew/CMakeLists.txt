@@ -163,6 +163,8 @@ set( PCBNEW_DIALOGS
     dialogs/dialog_footprint_wizard_list.cpp
     dialogs/wizard_add_fplib_base.cpp
     dialogs/wizard_add_fplib.cpp
+    dialogs/dialog_constraint_layer_selection_base.cpp
+    dialogs/dialog_constraint_layer_selection.cpp
     ${GITHUB_3DLIBRARIES_WIZARD}
     )
 

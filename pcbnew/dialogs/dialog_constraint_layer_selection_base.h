@@ -11,6 +11,9 @@
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
+class DIALOG_SHIM;
+
+#include "dialog_shim.h"
 #include <wx/colour.h>
 #include <wx/settings.h>
 #include <wx/string.h>
@@ -28,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// Class DIALOG_CONSTRAINT_LAYER_SELECTION_BASE
 ///////////////////////////////////////////////////////////////////////////////
-class DIALOG_CONSTRAINT_LAYER_SELECTION_BASE : public wxDialog 
+class DIALOG_CONSTRAINT_LAYER_SELECTION_BASE : public DIALOG_SHIM
 {
 	private:
 	
