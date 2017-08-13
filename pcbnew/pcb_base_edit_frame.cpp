@@ -55,13 +55,13 @@ void PCB_BASE_EDIT_FRAME::SetBoard( BOARD* aBoard )
 {
     bool new_board = ( aBoard != m_Pcb );
 
-    // The active tool might store a reference to the BOARD that is about to be deleted.
-    if( m_toolManager )
-        m_toolManager->DeactivateTool();
-
-    // It has to be done before the previous board is destroyed by SetBoard()
     if( new_board )
+    {
+        if( m_toolManager )
+            m_toolManager->ResetTools( TOOL_BASE::MODEL_RELOAD );
+
         GetGalCanvas()->GetView()->Clear();
+    }
 
     PCB_BASE_FRAME::SetBoard( aBoard );
 
@@ -73,6 +73,7 @@ void PCB_BASE_EDIT_FRAME::SetBoard( BOARD* aBoard )
         PCB_DRAW_PANEL_GAL* drawPanel = static_cast<PCB_DRAW_PANEL_GAL*>( GetGalCanvas() );
 
         drawPanel->DisplayBoard( aBoard );
+        drawPanel->UseColorScheme( &Settings().Colors() );
         m_toolManager->SetEnvironment( aBoard, drawPanel->GetView(),
                                        drawPanel->GetViewControls(), this );
 

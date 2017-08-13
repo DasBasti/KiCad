@@ -265,10 +265,11 @@ int SELECTION_TOOL::Main( const TOOL_EVENT& aEvent )
         // right click? if there is any object - show the context menu
         else if( evt->IsClick( BUT_RIGHT ) )
         {
-            bool emptySelection = m_selection.Empty();
-
-            if( emptySelection )
+            if( m_selection.Empty() )
+            {
                 selectPoint( evt->Position() );
+                m_selection.SetIsHover( true );
+            }
 
             m_menu.ShowContextMenu( m_selection );
         }
@@ -300,6 +301,7 @@ int SELECTION_TOOL::Main( const TOOL_EVENT& aEvent )
                 }
                 else
                 {
+                    m_selection.SetIsHover( true );
                     m_toolMgr->InvokeTool( "pcbnew.InteractiveEdit" );
                 }
             }
@@ -346,14 +348,10 @@ SELECTION& SELECTION_TOOL::GetSelection()
 
 SELECTION& SELECTION_TOOL::RequestSelection( int aFlags )
 {
-    if ( m_selection.Empty() )
+    if( m_selection.Empty() )
     {
         m_toolMgr->RunAction( PCB_ACTIONS::selectionCursor, true, 0 );
         m_selection.SetIsHover( true );
-    }
-    else
-    {
-        m_selection.SetIsHover( false );
     }
 
     // Be careful with iterators: items can be removed from list
@@ -368,7 +366,7 @@ SELECTION& SELECTION_TOOL::RequestSelection( int aFlags )
         }
     }
 
-    if ( aFlags & SELECTION_SANITIZE_PADS )
+    if( aFlags & SELECTION_SANITIZE_PADS )
         SanitizeSelection();
 
     return m_selection;
@@ -594,7 +592,7 @@ bool SELECTION_TOOL::selectMultiple()
 }
 
 
-void SELECTION_TOOL::SetTransitions()
+void SELECTION_TOOL::setTransitions()
 {
     Go( &SELECTION_TOOL::Main, PCB_ACTIONS::selectionActivate.MakeEvent() );
     Go( &SELECTION_TOOL::CursorSelection, PCB_ACTIONS::selectionCursor.MakeEvent() );
@@ -1233,16 +1231,13 @@ int SELECTION_TOOL::filterSelection( const TOOL_EVENT& aEvent )
 void SELECTION_TOOL::clearSelection()
 {
     if( m_selection.Empty() )
-    {
         return;
-    }
 
     for( auto item : m_selection )
-    {
         unselectVisually( static_cast<BOARD_ITEM*>( item ) );
-    }
 
     m_selection.Clear();
+    m_selection.SetIsHover( false );
 
     m_frame->SetCurItem( NULL );
     m_locked = true;
@@ -1521,7 +1516,6 @@ void SELECTION_TOOL::selectVisually( BOARD_ITEM* aItem )
     // Hide the original item, so it is shown only on overlay
     aItem->SetSelected();
     view()->Hide( aItem, true );
-    view()->Update( aItem, KIGFX::COLOR );
 
     // Modules are treated in a special way - when they are selected, we have to
     // unselect all the parts that make the module, not the module itself
@@ -1532,7 +1526,6 @@ void SELECTION_TOOL::selectVisually( BOARD_ITEM* aItem )
         {
             item->SetSelected();
             view()->Hide( item, true );
-            view()->Update( item, KIGFX::COLOR );
         });
     }
 
@@ -1545,7 +1538,7 @@ void SELECTION_TOOL::unselectVisually( BOARD_ITEM* aItem )
     // Restore original item visibility
     aItem->ClearSelected();
     view()->Hide( aItem, false );
-    view()->Update( aItem, KIGFX::COLOR );
+    view()->Update( aItem );
 
     // Modules are treated in a special way - when they are selected, we have to
     // unselect all the parts that make the module, not the module itself
@@ -1556,7 +1549,7 @@ void SELECTION_TOOL::unselectVisually( BOARD_ITEM* aItem )
         {
             item->ClearSelected();
             view()->Hide( item, false );
-            view()->Update( item, KIGFX::COLOR );
+            view()->Update( item );
         });
     }
 
@@ -1604,7 +1597,7 @@ static double calcArea( const BOARD_ITEM* aItem )
 }
 
 
-static double calcMinArea( GENERAL_COLLECTOR& aCollector, KICAD_T aType )
+/*static double calcMinArea( GENERAL_COLLECTOR& aCollector, KICAD_T aType )
 {
     double best = std::numeric_limits<double>::max();
 
@@ -1619,7 +1612,7 @@ static double calcMinArea( GENERAL_COLLECTOR& aCollector, KICAD_T aType )
     }
 
     return best;
-}
+}*/
 
 
 static double calcMaxArea( GENERAL_COLLECTOR& aCollector, KICAD_T aType )
@@ -1749,19 +1742,21 @@ void SELECTION_TOOL::guessSelectionCandidates( GENERAL_COLLECTOR& aCollector ) c
 
     if( aCollector.CountType( PCB_MODULE_T ) > 0 )
     {
-        double minArea = calcMinArea( aCollector, PCB_MODULE_T );
         double maxArea = calcMaxArea( aCollector, PCB_MODULE_T );
+        BOX2D viewportD = getView()->GetViewport();
+        BOX2I viewport( VECTOR2I( viewportD.GetPosition() ), VECTOR2I( viewportD.GetSize() ) );
 
-        if( calcRatio( minArea, maxArea ) <= footprintAreaRatio )
+        for( int i = 0; i < aCollector.GetCount(); ++i )
         {
-            for( int i = 0; i < aCollector.GetCount(); ++i )
+            if( MODULE* mod = dyn_cast<MODULE*>( aCollector[i] ) )
             {
-                if( MODULE* mod = dyn_cast<MODULE*>( aCollector[i] ) )
-                {
-                    double normalizedArea = calcRatio( calcArea( mod ), maxArea );
+                double normalizedArea = calcRatio( calcArea( mod ), maxArea );
 
-                    if( normalizedArea > footprintAreaRatio )
-                        rejected.insert( mod );
+                if( normalizedArea > footprintAreaRatio
+                        // filter out components larger than the viewport
+                        || mod->ViewBBox().Contains( viewport ) )
+                {
+                    rejected.insert( mod );
                 }
             }
         }

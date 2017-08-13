@@ -36,6 +36,7 @@
 #include <class_mire.h>
 #include <class_marker_pcb.h>
 
+#include <layers_id_colors_and_visibility.h>
 #include <pcb_painter.h>
 #include <gal/graphics_abstraction_layer.h>
 #include <convert_basic_shapes_to_polygon.h>
@@ -87,7 +88,6 @@ void PCB_RENDER_SETTINGS::ImportLegacyColors( const COLORS_DESIGN_SETTINGS* aSet
     m_layerColors[LAYER_PADS_NETNAMES]      = COLOR4D( 1.0, 1.0, 1.0, 0.9 );
     m_layerColors[LAYER_PAD_FR_NETNAMES]    = COLOR4D( 1.0, 1.0, 1.0, 0.9 );
     m_layerColors[LAYER_PAD_BK_NETNAMES]    = COLOR4D( 1.0, 1.0, 1.0, 0.9 );
-    m_layerColors[LAYER_WORKSHEET]          = COLOR4D( 0.5, 0.0, 0.0, 0.8 );
     m_layerColors[LAYER_DRC]                = COLOR4D( 1.0, 0.0, 0.0, 0.8 );
 
     // LAYER_NON_PLATED, LAYER_ANCHOR],LAYER_RATSNEST,
@@ -97,9 +97,6 @@ void PCB_RENDER_SETTINGS::ImportLegacyColors( const COLORS_DESIGN_SETTINGS* aSet
     // These colors are not actually used. Set just in case...
     m_layerColors[LAYER_MOD_TEXT_FR] = m_layerColors[F_SilkS];
     m_layerColors[LAYER_MOD_TEXT_BK] = m_layerColors[B_SilkS];
-
-    // Make ratsnest lines slightly transparent
-    m_layerColors[LAYER_RATSNEST].a = 0.8;
 
     // Netnames for copper layers
     for( LSEQ cu = LSET::AllCuMask().CuStack();  cu;  ++cu )
@@ -113,6 +110,8 @@ void PCB_RENDER_SETTINGS::ImportLegacyColors( const COLORS_DESIGN_SETTINGS* aSet
         else
             m_layerColors[GetNetnameLayer( layer )] = lightLabel;
     }
+
+    SetBackgroundColor ( aSettings->GetItemColor( LAYER_PCB_BACKGROUND ) );
 
     update();
 }
@@ -896,12 +895,13 @@ void PCB_PAINTER::draw( const DRAWSEGMENT* aSegment, int aLayer )
 
     case S_POLYGON:
     {
+        const auto& points = aSegment->GetPolyPoints();
         std::deque<VECTOR2D> pointsList;
 
-        m_gal->SetIsFill( true );       // draw polygons the legacy way
-        m_gal->SetIsStroke( false );
+        if( points.empty() )
+            break;
+
         m_gal->Save();
-        m_gal->SetLineWidth( thickness );
 
         if( MODULE* module = aSegment->GetParentModule() )
         {
@@ -914,11 +914,12 @@ void PCB_PAINTER::draw( const DRAWSEGMENT* aSegment, int aLayer )
             m_gal->Rotate( DECIDEG2RAD( -aSegment->GetAngle() ) );
         }
 
-        std::copy( aSegment->GetPolyPoints().begin(), aSegment->GetPolyPoints().end(),
-                   std::back_inserter( pointsList ) );
+        std::copy( points.begin(), points.end(), std::back_inserter( pointsList ) );
+        pointsList.push_back( points[0] );
 
         m_gal->SetLineWidth( aSegment->GetWidth() );
-        m_gal->DrawPolyline( pointsList );
+        m_gal->SetIsFill( true );       // draw polygons the legacy way
+        m_gal->SetIsStroke( true );
         m_gal->DrawPolygon( pointsList );
 
         m_gal->Restore();

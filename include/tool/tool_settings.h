@@ -26,7 +26,7 @@
 #ifndef __TOOL_SETTINGS_H
 #define __TOOL_SETTINGS_H
 
-#include <wx/confbase.h>
+#include <core/settings.h>
 
 /**
  * Class TOOL_SETTINGS
@@ -35,7 +35,7 @@
  */
 class TOOL_BASE;
 
-class TOOL_SETTINGS
+class TOOL_SETTINGS : public SETTINGS
 {
     public:
         TOOL_SETTINGS( TOOL_BASE* aTool = NULL );
@@ -67,7 +67,7 @@ class TOOL_SETTINGS
         }
 
     private:
-        wxString getKeyName( const wxString& aEntryName ) const;
+        wxString getKeyName( const wxString& aEntryName ) const override;
 
         ///> Returns pointer to currently used wxConfigBase. It might be NULL, if there is no
         ///> TOOL_BASE assigned.

@@ -952,7 +952,7 @@ bool DRAWING_TOOL::drawSegment( int aShape, DRAWSEGMENT*& aGraphic,
         cursorPos = m_controls->GetCursorPosition();
 
         // 45 degree angle constraint enabled with an option and toggled with Ctrl
-        const bool limit45 = ( g_Segments_45_Only != !!( evt->Modifier( MD_CTRL ) ) );
+        const bool limit45 = ( frame()->Settings().m_use45DegreeGraphicSegments != !!( evt->Modifier( MD_CTRL ) ) );
 
         if( direction45 != limit45 && started && aShape == S_SEGMENT )
         {
@@ -1528,7 +1528,7 @@ int DRAWING_TOOL::DrawVia( const TOOL_EVENT& aEvent )
 }
 
 
-void DRAWING_TOOL::SetTransitions()
+void DRAWING_TOOL::setTransitions()
 {
     Go( &DRAWING_TOOL::DrawLine, PCB_ACTIONS::drawLine.MakeEvent() );
     Go( &DRAWING_TOOL::DrawCircle, PCB_ACTIONS::drawCircle.MakeEvent() );

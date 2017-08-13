@@ -87,10 +87,6 @@ OPENGL_GAL::OPENGL_GAL( GAL_DISPLAY_OPTIONS& aDisplayOptions, wxWindow* aParent,
     compositor = new OPENGL_COMPOSITOR;
     compositor->SetAntialiasingMode( options.gl_antialiasing_mode );
 
-    cachedManager = new VERTEX_MANAGER( true );
-    nonCachedManager = new VERTEX_MANAGER( false );
-    overlayManager = new VERTEX_MANAGER( false );
-
     // Initialize the flags
     isFramebufferInitialized = false;
     isBitmapFontInitialized  = false;
@@ -154,9 +150,13 @@ OPENGL_GAL::~OPENGL_GAL()
     ClearCache();
 
     delete compositor;
-    delete cachedManager;
-    delete nonCachedManager;
-    delete overlayManager;
+
+    if( isInitialized )
+    {
+        delete cachedManager;
+        delete nonCachedManager;
+        delete overlayManager;
+    }
 
     GL_CONTEXT_MANAGER::Get().UnlockCtx( glPrivContext );
 
@@ -340,6 +340,8 @@ void OPENGL_GAL::BeginDrawing()
     wxLogTrace( "GAL_PROFILE",
                 wxT( "OPENGL_GAL::BeginDrawing(): %.1f ms" ), totalRealTime.msecs() );
 #endif /* __WXDEBUG__ */
+
+    //enableGlDebug( true );
 }
 
 
@@ -1145,11 +1147,11 @@ void OPENGL_GAL::Flush()
 }
 
 
-void OPENGL_GAL::ClearScreen( const COLOR4D& aColor )
+void OPENGL_GAL::ClearScreen( )
 {
     // Clear screen
     compositor->SetBuffer( OPENGL_COMPOSITOR::DIRECT_RENDERING );
-    glClearColor( aColor.r, aColor.g, aColor.b, aColor.a );
+    glClearColor( m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 }
 
@@ -1249,7 +1251,9 @@ void OPENGL_GAL::DeleteGroup( int aGroupNumber )
 void OPENGL_GAL::ClearCache()
 {
     groups.clear();
-    cachedManager->Clear();
+
+    if( isInitialized )
+        cachedManager->Clear();
 }
 
 
@@ -1312,7 +1316,11 @@ void OPENGL_GAL::ClearTarget( RENDER_TARGET aTarget )
         break;
     }
 
-    compositor->ClearBuffer();
+
+    if( aTarget != TARGET_OVERLAY )
+        compositor->ClearBuffer( m_clearColor );
+    else
+        compositor->ClearBuffer( COLOR4D::BLACK );
 
     // Restore the previous state
     compositor->SetBuffer( oldTarget );
@@ -1486,6 +1494,10 @@ void OPENGL_GAL::drawPolygon( GLdouble* aPoints, int aPointCount )
 
     // Free allocated intersecting points
     tessIntersects.clear();
+
+    if( isStrokeEnabled )
+        drawPolyline( [&](int idx) { return VECTOR2D( aPoints[idx * 3], aPoints[idx * 3 + 1] ); },
+                aPointCount );
 }
 
 
@@ -1671,6 +1683,7 @@ void OPENGL_GAL::blitCursor()
     const COLOR4D color( cColor.r * cColor.a, cColor.g * cColor.a,
                          cColor.b * cColor.a, 1.0 );
 
+    glActiveTexture( GL_TEXTURE0 );
     glDisable( GL_TEXTURE_2D );
     glLineWidth( 1.0 );
     glColor4d( color.r, color.g, color.b, color.a );
@@ -1750,6 +1763,10 @@ void OPENGL_GAL::init()
         GL_CONTEXT_MANAGER::Get().UnlockCtx( glPrivContext );
         throw;
     }
+
+    cachedManager = new VERTEX_MANAGER( true );
+    nonCachedManager = new VERTEX_MANAGER( false );
+    overlayManager = new VERTEX_MANAGER( false );
 
     // Make VBOs use shaders
     cachedManager->SetShader( *shader );

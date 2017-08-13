@@ -95,7 +95,7 @@ protected:
 
     DRC* m_drc;                                 ///< the DRC controller, see drc.cpp
 
-    PARAM_CFG_ARRAY   m_configSettings;         ///< List of Pcbnew configuration settings.
+    PARAM_CFG_ARRAY   m_configParams;         ///< List of Pcbnew configuration settings.
 
     wxString          m_lastNetListRead;        ///< Last net list read with relative path.
 
@@ -117,6 +117,11 @@ protected:
      * is switched to GAL mode and which do nothing in legacy mode
      */
     void enableGALSpecificMenus();
+
+    /**
+     * switches currently used canvas (default / Cairo / OpenGL).
+     */
+    virtual void SwitchCanvas( wxCommandEvent& aEvent ) override;
 
     /**
      * Helper function to coerce all colors to legacy-compatible when
@@ -362,7 +367,7 @@ public:
      * Function GetGridColor() , virtual
      * @return the color of the grid
      */
-    virtual COLOR4D GetGridColor() const override;
+    virtual COLOR4D GetGridColor() override;
 
     /**
      * Function SetGridColor() , virtual

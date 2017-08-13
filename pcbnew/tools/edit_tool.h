@@ -29,6 +29,7 @@
 #include <math/vector2d.h>
 #include <tools/pcb_tool.h>
 
+
 class BOARD_COMMIT;
 class BOARD_ITEM;
 class SELECTION_TOOL;
@@ -59,6 +60,13 @@ public:
      * @param aEvent is the handled event.
      */
     int Main( const TOOL_EVENT& aEvent );
+
+    /**
+     * Function Drag()
+     *
+     * todo
+     */
+    int Drag( const TOOL_EVENT& aEvent );
 
     /**
      * Function Edit()
@@ -129,7 +137,7 @@ public:
     int MeasureTool( const TOOL_EVENT& aEvent );
 
     ///> Sets up handlers for various events.
-    void SetTransitions() override;
+    void setTransitions() override;
 
 private:
     ///> Selection tool used for obtaining selected items
@@ -145,18 +153,16 @@ private:
     ///> of edit reference point).
     VECTOR2I m_cursor;
 
-    ///> Updates ratsnest for selected items.
-    ///> @param aRedraw says if selected items should be drawn using the simple mode (e.g. one line
-    ///> per item).
-    void updateRatsnest( bool aRedraw );
-
     ///> Returns the right modification point (e.g. for rotation), depending on the number of
     ///> selected items.
     wxPoint getModificationPoint( const SELECTION& aSelection );
 
     int editFootprintInFpEditor( const TOOL_EVENT& aEvent );
 
-    bool invokeInlineRouter();
+    bool invokeInlineRouter( int aDragMode );
+
+    bool changeTrackWidthOnClick( const SELECTION& selection );
+
 
     /**
      * Function hoverSelection()

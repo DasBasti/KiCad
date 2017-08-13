@@ -164,7 +164,7 @@ int MODULE_EDITOR_TOOLS::EnumeratePads( const TOOL_EVENT& aEvent )
 
     while( OPT_TOOL_EVENT evt = Wait() )
     {
-        if( evt->IsDrag( BUT_LEFT ) )
+        if( evt->IsDrag( BUT_LEFT ) || evt->IsClick( BUT_LEFT ) )
         {
             selectedPads.clear();
             VECTOR2I cursorPos = getViewControls()->GetCursorPosition();
@@ -512,7 +512,7 @@ int MODULE_EDITOR_TOOLS::ModuleEdgeOutlines( const TOOL_EVENT& aEvent )
 }
 
 
-void MODULE_EDITOR_TOOLS::SetTransitions()
+void MODULE_EDITOR_TOOLS::setTransitions()
 {
     Go( &MODULE_EDITOR_TOOLS::PlacePad,            PCB_ACTIONS::placePad.MakeEvent() );
     Go( &MODULE_EDITOR_TOOLS::EnumeratePads,       PCB_ACTIONS::enumeratePads.MakeEvent() );

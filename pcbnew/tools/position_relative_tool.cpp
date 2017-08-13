@@ -59,6 +59,7 @@ POSITION_RELATIVE_TOOL::POSITION_RELATIVE_TOOL() :
     PCB_TOOL( "pcbnew.PositionRelative" ), m_position_relative_dialog( NULL ),
     m_selectionTool( NULL ), m_anchor_item( NULL )
 {
+    m_position_relative_rotation = 0.0;
 }
 
 
@@ -187,7 +188,7 @@ void POSITION_RELATIVE_TOOL::UpdateAnchor( BOARD_ITEM* aItem )
 }
 
 
-void POSITION_RELATIVE_TOOL::SetTransitions()
+void POSITION_RELATIVE_TOOL::setTransitions()
 {
     Go( &POSITION_RELATIVE_TOOL::PositionRelative, PCB_ACTIONS::positionRelative.MakeEvent() );
     Go( &POSITION_RELATIVE_TOOL::SelectPositionRelativeItem,

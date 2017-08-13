@@ -7,9 +7,12 @@
 
 #define ALPHA_MAX 100   // the max value returned by the alpha (opacity) slider
 
-COLOR4D_PICKER_DLG::COLOR4D_PICKER_DLG( wxWindow* aParent, KIGFX::COLOR4D& aCurrentColor )
+COLOR4D_PICKER_DLG::COLOR4D_PICKER_DLG( wxWindow* aParent, KIGFX::COLOR4D& aCurrentColor,
+                                        bool aAllowOpacityControl )
 	: COLOR4D_PICKER_DLG_BASE( aParent )
 {
+    m_allowMouseEvents = false;
+    m_allowOpacityCtrl = aAllowOpacityControl;
     m_previousColor4D = aCurrentColor;
     m_newColor4D = aCurrentColor;
     m_cursorsSize = 8;      // Size of square cursors drawn on color bitmaps
@@ -17,6 +20,14 @@ COLOR4D_PICKER_DLG::COLOR4D_PICKER_DLG( wxWindow* aParent, KIGFX::COLOR4D& aCurr
     m_bitmapRGB = nullptr;
     m_bitmapHSV = nullptr;
     m_selectedCursor = nullptr;
+
+    if( !m_allowOpacityCtrl )
+    {
+        m_SizerTransparency->Show( false );
+        m_previousColor4D.a = 1.0;
+        m_newColor4D.a = 1.0;
+    }
+
     m_notebook->SetSelection( m_ActivePage );
 
     // Build the defined colors panel:
@@ -483,6 +494,7 @@ void COLOR4D_PICKER_DLG::buttColorClick( wxCommandEvent& event )
 
 void COLOR4D_PICKER_DLG::onRGBMouseClick( wxMouseEvent& event )
 {
+    m_allowMouseEvents = true;
     wxPoint mousePos = event.GetPosition();
 
     // The cursor position is relative to the m_bitmapHSV wxBitmap center
@@ -522,7 +534,7 @@ void COLOR4D_PICKER_DLG::onRGBMouseClick( wxMouseEvent& event )
 
 void COLOR4D_PICKER_DLG::onRGBMouseDrag( wxMouseEvent& event )
 {
-    if( !event.Dragging() )
+    if( !event.Dragging() || !m_allowMouseEvents )
     {
         m_selectedCursor = nullptr;
         return;
@@ -580,6 +592,8 @@ void COLOR4D_PICKER_DLG::onRGBMouseDrag( wxMouseEvent& event )
 
 void COLOR4D_PICKER_DLG::onHSVMouseClick( wxMouseEvent& event )
 {
+    m_allowMouseEvents = true;
+
     if( setHSvaluesFromCursor( event.GetPosition() ) )
         drawAll();
 }
@@ -587,7 +601,7 @@ void COLOR4D_PICKER_DLG::onHSVMouseClick( wxMouseEvent& event )
 
 void COLOR4D_PICKER_DLG::onHSVMouseDrag( wxMouseEvent& event )
 {
-    if( !event.Dragging() )
+    if( !event.Dragging() || !m_allowMouseEvents )
         return;
 
     if( setHSvaluesFromCursor( event.GetPosition() ) )

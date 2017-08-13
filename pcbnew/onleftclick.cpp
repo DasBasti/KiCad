@@ -439,6 +439,7 @@ void PCB_EDIT_FRAME::OnLeftClick( wxDC* aDC, const wxPoint& aPosition )
         m_canvas->DrawGridAxis( aDC, GR_COPY, GetBoard()->GetGridOrigin() );
         break;
 
+    case ID_PCB_DRAW_VIA_BUTT:
     case ID_PCB_MEASUREMENT_TOOL:
         DisplayError( this, _( "This tool is not available in the legacy canvas" ) );
         SetNoToolSelected();
@@ -544,11 +545,9 @@ void PCB_EDIT_FRAME::OnLeftDClick( wxDC* aDC, const wxPoint& aPosition )
 
         if( curr_item->Type() != PCB_LINE_T )
         {
-            DisplayErrorMessage(
-                    this,
-                    _( "Item type is incorrect" ),
-                    wxString::Format( _( "Selected item type is %d\n"
-                                         "Expected: %d" ), curr_item->Type(), PCB_LINE_T ) );
+            DisplayErrorMessage( this, "Item type is incorrect",
+                                 wxString::Format( "Selected item type is %d\n"
+                                         "Expected: %d", curr_item->Type(), PCB_LINE_T ) );
             m_canvas->SetAutoPanRequest( false );
             break;
         }

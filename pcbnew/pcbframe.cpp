@@ -50,7 +50,7 @@
 #include <dialog_design_rules.h>
 #include <class_pcb_layer_widget.h>
 #include <hotkeys.h>
-#include <pcbnew_config.h>
+#include <config_params.h>
 #include <module_editor_frame.h>
 #include <dialog_helpers.h>
 #include <dialog_plot.h>
@@ -190,9 +190,9 @@ BEGIN_EVENT_TABLE( PCB_EDIT_FRAME, PCB_BASE_FRAME )
     EVT_MENU( ID_MENU_PCB_SHOW_3D_FRAME, PCB_EDIT_FRAME::Show3D_Frame )
 
     // Switching canvases
-    EVT_MENU( ID_MENU_CANVAS_LEGACY, PCB_BASE_FRAME::SwitchCanvas )
-    EVT_MENU( ID_MENU_CANVAS_CAIRO, PCB_BASE_FRAME::SwitchCanvas )
-    EVT_MENU( ID_MENU_CANVAS_OPENGL, PCB_BASE_FRAME::SwitchCanvas )
+    EVT_MENU( ID_MENU_CANVAS_LEGACY, PCB_EDIT_FRAME::SwitchCanvas )
+    EVT_MENU( ID_MENU_CANVAS_CAIRO, PCB_EDIT_FRAME::SwitchCanvas )
+    EVT_MENU( ID_MENU_CANVAS_OPENGL, PCB_EDIT_FRAME::SwitchCanvas )
 
     // Menu Get Design Rules Editor
     EVT_MENU( ID_MENU_PCB_SHOW_DESIGN_RULES_DIALOG, PCB_EDIT_FRAME::ShowDesignRulesEditor )
@@ -731,15 +731,15 @@ void PCB_EDIT_FRAME::UseGalCanvas( bool aEnable )
 
 void PCB_EDIT_FRAME::forceColorsToLegacy()
 {
-    COLORS_DESIGN_SETTINGS* cds = GetBoard()->GetColorsSettings();
+    COLORS_DESIGN_SETTINGS& cds = Settings().Colors();
 
-    for( unsigned i = 0; i < DIM( cds->m_LayersColors ); i++ )
+    for( unsigned i = 0; i < DIM( cds.m_LayersColors ); i++ )
     {
-        COLOR4D c = cds->GetLayerColor( i );
+        COLOR4D c = cds.GetLayerColor( i );
         c.SetToNearestLegacyColor();
         // Note the alpha chanel is not modified. Therefore the value
         // is the previous value used in GAL canvas.
-        cds->SetLayerColor( i, c );
+        cds.SetLayerColor( i, c );
     }
 }
 
@@ -794,6 +794,8 @@ void PCB_EDIT_FRAME::LoadSettings( wxConfigBase* aCfg )
 
     wxConfigLoadSetups( aCfg, GetConfigurationSettings() );
 
+    m_configSettings.Load( aCfg );
+
     double dtmp;
     aCfg->Read( PlotLineWidthEntry, &dtmp, 0.1 ); // stored in mm
 
@@ -805,8 +807,6 @@ void PCB_EDIT_FRAME::LoadSettings( wxConfigBase* aCfg )
 
     g_DrawDefaultLineThickness = Millimeter2iu( dtmp );
 
-    aCfg->Read( MagneticPadsEntry, &g_MagneticPadOption );
-    aCfg->Read( MagneticTracksEntry, &g_MagneticTrackOption );
     aCfg->Read( ShowMicrowaveEntry, &m_show_microwave_tools );
     aCfg->Read( ShowLayerManagerEntry, &m_show_layer_manager_tools );
     aCfg->Read( ShowPageLimitsEntry, &m_showPageLimits );
@@ -815,14 +815,14 @@ void PCB_EDIT_FRAME::LoadSettings( wxConfigBase* aCfg )
 
 void PCB_EDIT_FRAME::SaveSettings( wxConfigBase* aCfg )
 {
+    m_configSettings.Save( aCfg );
+
     PCB_BASE_FRAME::SaveSettings( aCfg );
 
     wxConfigSaveSetups( aCfg, GetConfigurationSettings() );
 
     // This value is stored in mm )
     aCfg->Write( PlotLineWidthEntry, MM_PER_IU * g_DrawDefaultLineThickness );
-    aCfg->Write( MagneticPadsEntry, (long) g_MagneticPadOption );
-    aCfg->Write( MagneticTracksEntry, (long) g_MagneticTrackOption );
     aCfg->Write( ShowMicrowaveEntry, (long) m_show_microwave_tools );
     aCfg->Write( ShowLayerManagerEntry, (long)m_show_layer_manager_tools );
     aCfg->Write( ShowPageLimitsEntry, m_showPageLimits );
@@ -841,16 +841,16 @@ void PCB_EDIT_FRAME::SetGridVisibility(bool aVisible)
 }
 
 
-COLOR4D PCB_EDIT_FRAME::GetGridColor() const
+COLOR4D PCB_EDIT_FRAME::GetGridColor()
 {
-    return GetBoard()->GetVisibleElementColor( LAYER_GRID );
+    return Settings().Colors().GetItemColor( LAYER_GRID );
 }
 
 
 void PCB_EDIT_FRAME::SetGridColor( COLOR4D aColor )
 {
 
-    GetBoard()->SetVisibleElementColor( LAYER_GRID, aColor );
+    Settings().Colors().SetItemColor( LAYER_GRID, aColor );
 
     if( IsGalCanvasActive() )
     {
@@ -1004,16 +1004,20 @@ void PCB_EDIT_FRAME::OnModify( )
 
 void PCB_EDIT_FRAME::SVG_Print( wxCommandEvent& event )
 {
-    PCB_PLOT_PARAMS  tmp = GetPlotSettings();
+    PCB_PLOT_PARAMS  plot_prms = GetPlotSettings();
 
     // we don't want dialogs knowing about complex wxFrame functions so
     // pass everything the dialog needs without reference to *this frame's class.
-    if( InvokeSVGPrint( this, GetBoard(), &tmp ) )
+    if( InvokeSVGPrint( this, GetBoard(), &plot_prms ) )
     {
-        if( tmp != GetPlotSettings() )
+        if( !plot_prms.IsSameAs( GetPlotSettings(), false ) )
         {
-            SetPlotSettings( tmp );
-            OnModify();
+            // First, mark board as modified only for parameters saved in file
+            if( !plot_prms.IsSameAs( GetPlotSettings(), true ) )
+                OnModify();
+
+            // Now, save any change, for the session
+            SetPlotSettings( plot_prms );
         }
     }
 }
@@ -1101,6 +1105,19 @@ void PCB_EDIT_FRAME::OnLayerColorChange( wxCommandEvent& aEvent )
     ReCreateLayerBox();
 }
 
+
+void PCB_EDIT_FRAME::SwitchCanvas( wxCommandEvent& aEvent )
+{
+    // switches currently used canvas (default / Cairo / OpenGL).
+    PCB_BASE_FRAME::SwitchCanvas( aEvent );
+
+    // The base class method reinit the layers manager.
+    // We must upate the layer widget to match board visibility states,
+    // both layers and render columns.
+    syncLayerVisibilities();
+    syncLayerWidgetLayer();
+    syncRenderStates();
+}
 
 void PCB_EDIT_FRAME::ToPlotter( wxCommandEvent& event )
 {

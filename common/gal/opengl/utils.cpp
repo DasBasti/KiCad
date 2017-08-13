@@ -76,12 +76,31 @@ int checkGlError( const std::string& aInfo, bool aThrow )
         if( aThrow )
             throw std::runtime_error( (const char*) errorMsg.char_str() );
         else
-            DisplayErrorMessage(
-                    nullptr,
-                    _( "OpenGL error occurred" ),
-                    errorMsg );
+            DisplayErrorMessage( nullptr, "OpenGL error occurred", errorMsg );
     }
 
     return result;
 }
 
+
+// debugMsgCallback is a callback function for glDebugMessageCallback.
+// It must have the right type ( GLAPIENTRY )
+static void GLAPIENTRY debugMsgCallback( GLenum aSource, GLenum aType, GLuint aId,
+   GLenum aSeverity, GLsizei aLength, const GLchar* aMessage, const void* aUserParam )
+{
+    printf( "%s", aMessage );
+}
+
+
+void enableGlDebug( bool aEnable )
+{
+    if( aEnable )
+    {
+        glEnable( GL_DEBUG_OUTPUT );
+        glDebugMessageCallback( (GLDEBUGPROC) debugMsgCallback, nullptr );
+    }
+    else
+    {
+        glDisable( GL_DEBUG_OUTPUT );
+    }
+}

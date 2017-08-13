@@ -39,7 +39,7 @@
 #include <wxPcbStruct.h>
 #include <class_board.h>
 #include <class_zone.h>
-#include <class_draw_panel_gal.h>
+#include <pcb_draw_panel_gal.h>
 #include <class_module.h>
 #include <class_mire.h>
 #include <connectivity.h>
@@ -53,6 +53,7 @@
 #include <view/view_group.h>
 #include <view/view_controls.h>
 #include <origin_viewitem.h>
+#include <profile.h>
 
 #include <tools/tool_event_utils.h>
 
@@ -239,6 +240,7 @@ PCB_EDITOR_CONTROL::PCB_EDITOR_CONTROL() :
     m_placeOrigin.reset( new KIGFX::ORIGIN_VIEWITEM( KIGFX::COLOR4D( 0.8, 0.0, 0.0, 1.0 ),
                                                 KIGFX::ORIGIN_VIEWITEM::CIRCLE_CROSS ) );
     m_probingSchToPcb = false;
+    m_slowRatsnest = false;
 }
 
 
@@ -308,6 +310,10 @@ bool PCB_EDITOR_CONTROL::Init()
 
         menu.AddMenu( zoneMenu.get(), false, toolActiveFunctor( DRAWING_TOOL::MODE::ZONE ) );
     }
+
+    m_ratsnestTimer.SetOwner( this );
+    Connect( m_ratsnestTimer.GetId(), wxEVT_TIMER,
+            wxTimerEventHandler( PCB_EDITOR_CONTROL::ratsnestTimer ), NULL, this );
 
     return true;
 }
@@ -1136,11 +1142,73 @@ int PCB_EDITOR_CONTROL::ShowLocalRatsnest( const TOOL_EVENT& aEvent )
 
 int PCB_EDITOR_CONTROL::UpdateSelectionRatsnest( const TOOL_EVENT& aEvent )
 {
+    auto selectionTool = m_toolMgr->GetTool<SELECTION_TOOL>();
+    auto& selection = selectionTool->GetSelection();
+    auto connectivity = getModel<BOARD>()->GetConnectivity();
+
+    if( selection.Empty() )
+    {
+        connectivity->ClearDynamicRatsnest();
+    }
+    else if( m_slowRatsnest )
+    {
+        // Compute ratsnest only when user stops dragging for a moment
+        connectivity->HideDynamicRatsnest();
+        m_ratsnestTimer.Start( 20 );
+    }
+    else
+    {
+        // Check how much time doest it take to calculate ratsnest
+        PROF_COUNTER counter;
+        calculateSelectionRatsnest();
+        counter.Stop();
+
+        // If it is too slow, then switch to 'slow ratsnest' mode when
+        // ratsnest is calculated when user stops dragging items for a moment
+        if( counter.msecs() > 25 )
+        {
+            m_slowRatsnest = true;
+            connectivity->HideDynamicRatsnest();
+        }
+    }
+
     return 0;
 }
 
 
-void PCB_EDITOR_CONTROL::SetTransitions()
+int PCB_EDITOR_CONTROL::HideSelectionRatsnest( const TOOL_EVENT& aEvent )
+{
+    getModel<BOARD>()->GetConnectivity()->ClearDynamicRatsnest();
+    m_slowRatsnest = false;
+    return 0;
+}
+
+
+void PCB_EDITOR_CONTROL::ratsnestTimer( wxTimerEvent& aEvent )
+{
+    m_ratsnestTimer.Stop();
+    calculateSelectionRatsnest();
+    static_cast<PCB_DRAW_PANEL_GAL*>( m_frame->GetGalCanvas() )->RedrawRatsnest();
+    m_frame->GetGalCanvas()->Refresh();
+}
+
+
+void PCB_EDITOR_CONTROL::calculateSelectionRatsnest()
+{
+    auto selectionTool = m_toolMgr->GetTool<SELECTION_TOOL>();
+    auto& selection = selectionTool->GetSelection();
+    auto connectivity = getModel<BOARD>()->GetConnectivity();
+    std::vector<BOARD_ITEM*> items;
+    items.reserve( selection.Size() );
+
+    for( auto item : selection )
+        items.push_back( static_cast<BOARD_ITEM*>( item ) );
+
+    connectivity->ComputeDynamicRatsnest( items );
+}
+
+
+void PCB_EDITOR_CONTROL::setTransitions()
 {
     // Track & via size control
     Go( &PCB_EDITOR_CONTROL::TrackWidthInc,      PCB_ACTIONS::trackWidthInc.MakeEvent() );
@@ -1171,6 +1239,7 @@ void PCB_EDITOR_CONTROL::SetTransitions()
     Go( &PCB_EDITOR_CONTROL::HighlightNetCursor,  PCB_ACTIONS::highlightNetCursor.MakeEvent() );
     Go( &PCB_EDITOR_CONTROL::ShowLocalRatsnest,   PCB_ACTIONS::showLocalRatsnest.MakeEvent() );
     Go( &PCB_EDITOR_CONTROL::UpdateSelectionRatsnest, PCB_ACTIONS::selectionModified.MakeEvent() );
+    Go( &PCB_EDITOR_CONTROL::HideSelectionRatsnest, SELECTION_TOOL::ClearedEvent );
 }
 
 
