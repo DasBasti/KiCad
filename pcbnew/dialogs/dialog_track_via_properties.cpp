@@ -57,6 +57,9 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
     boost::optional<int> viaY = boost::make_optional<int>( false, 0 );
     boost::optional<int> viaDiameter = boost::make_optional<int>( false, 0 );
     boost::optional<int> viaDrill = boost::make_optional<int>( false, 0 );
+    boost::optional<PCB_LAYER_ID> viaStartLayer = boost::make_optional<PCB_LAYER_ID>( false, (PCB_LAYER_ID) 0 );
+    boost::optional<PCB_LAYER_ID> viaEndLayer = boost::make_optional<PCB_LAYER_ID>( false, (PCB_LAYER_ID) 0 );
+    boost::optional<int> viaType = boost::make_optional<int>( false, 0 );
 
     m_haveUniqueNet = true;
     int prevNet = -1;
@@ -150,6 +153,12 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
                     viaY = v->GetPosition().y;
                     viaDiameter = v->GetWidth();
                     viaDrill = v->GetDrillValue();
+                    PCB_LAYER_ID layerStart;
+                    PCB_LAYER_ID layerEnd;
+                    v->LayerPair(&layerStart, &layerEnd);
+                    viaStartLayer = layerStart;
+                    viaEndLayer = layerEnd;
+                    viaType = v->GetViaType();
                     m_vias = true;
                 }
                 else        // check if values are the same for every selected via
@@ -165,6 +174,17 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
 
                     if( viaDrill && ( *viaDrill != v->GetDrillValue() ) )
                         viaDrill = boost::none;
+
+                    PCB_LAYER_ID layerStart;
+                    PCB_LAYER_ID layerEnd;
+                    v->LayerPair(&layerStart, &layerEnd);
+                    if( viaStartLayer && ( viaStartLayer != layerStart ) )
+                        viaStartLayer = boost::none;
+                    if( viaEndLayer && ( viaEndLayer != layerEnd ) )
+                        viaEndLayer = boost::none;
+
+                    if( viaType && ( *viaType != v->GetViaType() ) )
+                        viaType = boost::none;
                 }
 
                 if( v->IsLocked() )
@@ -189,7 +209,29 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
         setCommonVal( viaY, m_ViaYCtrl, m_viaY );
         setCommonVal( viaDiameter, m_ViaDiameterCtrl, m_viaDiameter );
         setCommonVal( viaDrill, m_ViaDrillCtrl, m_viaDrill );
+
+        m_ViaTypeChoice->SetSelection(*viaType);
+        m_ViaTypeChoice->Enable();
+
+        m_ViaStartLayer->SetLayersHotkeys( false );
+        m_ViaStartLayer->SetLayerSet( LSET::AllNonCuMask() );
+        m_ViaStartLayer->SetBoardFrame( aParent );
+        m_ViaStartLayer->Resync();
+
+        if( viaStartLayer )
+            m_ViaStartLayer->SetLayerSelection( *viaStartLayer );
+
+        m_ViaEndLayer->SetLayersHotkeys( false );
+        m_ViaEndLayer->SetLayerSet( LSET::AllNonCuMask() );
+        m_ViaEndLayer->SetBoardFrame( aParent );
+        m_ViaEndLayer->Resync();
+
+        if( viaEndLayer )
+            m_ViaEndLayer->SetLayerSelection( *viaEndLayer );
+
         m_ViaDiameterCtrl->SetFocus();
+
+
     }
     else
     {
@@ -366,6 +408,15 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
                     printf("snc %d\n", m_NetComboBox->GetSelectedNet());
                     v->SetNetCode( m_NetComboBox->GetSelectedNet() );
                 }
+
+                LAYER_NUM startLayer = m_ViaStartLayer->GetLayerSelection();
+                LAYER_NUM endLayer = m_ViaEndLayer->GetLayerSelection();
+
+                if( startLayer != UNDEFINED_LAYER && endLayer != UNDEFINED_LAYER)
+                    v->SetLayerPair( (PCB_LAYER_ID)startLayer, (PCB_LAYER_ID)endLayer );
+
+                if( m_ViaTypeChoice->GetSelection() != VIA_NOT_DEFINED )
+                    v->SetViaType( (VIATYPE_T)m_ViaTypeChoice->GetSelection() );
 
                 if( changeLock )
                     v->SetLocked( setLock );
