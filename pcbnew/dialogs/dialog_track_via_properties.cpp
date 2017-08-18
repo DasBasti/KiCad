@@ -289,6 +289,7 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
 
     bool changeLock = m_lockedCbox->Get3StateValue() != wxCHK_UNDETERMINED;
     bool setLock = m_lockedCbox->Get3StateValue() == wxCHK_CHECKED;
+    bool setNetclassSizes = false;
 
     for( auto item : m_items )
     {
@@ -373,7 +374,40 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
                     v->SetPosition( pos );
                 }
 
-                if( m_viaNetclass->IsChecked() )
+                if( m_ViaTypeChoice->GetSelection() != VIA_NOT_DEFINED )
+                    v->SetViaType( (VIATYPE_T)m_ViaTypeChoice->GetSelection() );
+
+                if( !m_viaNetclass->IsChecked() )
+                {
+                    if( m_ViaTypeChoice->GetSelection() == VIA_MICROVIA && (
+                        v->GetWidth() < v->GetNetClass()->GetuViaDiameter()
+                    || v->GetDrill() < v->GetNetClass()->GetuViaDrill() ) )
+                    {
+                        wxMessageDialog dlg( this, _( "MicroVia sizes are smaller than net class. Use net class instead?" ), wxEmptyString, wxYES_NO );
+                        if( dlg.ShowModal() == wxID_YES )
+                        {
+                            m_viaNetclass->SetValue(true);
+                            setNetclassSizes = true;
+                        }
+                    }
+                    else if( m_ViaTypeChoice->GetSelection() != VIA_MICROVIA && (
+                            v->GetWidth() < v->GetNetClass()->GetViaDiameter()
+                        || v->GetDrill() < v->GetNetClass()->GetViaDrill() ) )
+                    {
+                        wxMessageDialog dlg( this, _( "Via sizes are smaller than net class. Use net class instead?" ), wxEmptyString, wxYES_NO );
+                        if( dlg.ShowModal() == wxID_YES )
+                        {
+                            m_viaNetclass->SetValue(true);
+                            setNetclassSizes = true;
+                        }
+                    }
+                }
+                else
+                {
+                    setNetclassSizes = true;
+                }
+
+                if( setNetclassSizes )
                 {
                     switch( v->GetViaType() )
                     {
@@ -414,9 +448,6 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
 
                 if( startLayer != UNDEFINED_LAYER && endLayer != UNDEFINED_LAYER)
                     v->SetLayerPair( (PCB_LAYER_ID)startLayer, (PCB_LAYER_ID)endLayer );
-
-                if( m_ViaTypeChoice->GetSelection() != VIA_NOT_DEFINED )
-                    v->SetViaType( (VIATYPE_T)m_ViaTypeChoice->GetSelection() );
 
                 if( changeLock )
                     v->SetLocked( setLock );
