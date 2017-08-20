@@ -46,6 +46,7 @@ private:
     void onViaNetclassCheck( wxCommandEvent& aEvent ) override;
     void onCancelClick( wxCommandEvent& aEvent ) override;
     void onOkClick( wxCommandEvent& aEvent ) override;
+    void onViaTypeChoice( wxCommandEvent& aEvent ) override;
 
     void OnInitDlg( wxInitDialogEvent& event ) override
     {

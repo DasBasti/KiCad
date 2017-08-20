@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Jun 17 2015)
+// C++ code generated with wxFormBuilder (version Feb 16 2016)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -99,6 +99,7 @@ class DIALOG_TRACK_VIA_PROPERTIES_BASE : public DIALOG_SHIM
 		virtual void onClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void OnInitDlg( wxInitDialogEvent& event ) { event.Skip(); }
 		virtual void onTrackNetclassCheck( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onViaTypeChoice( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onViaNetclassCheck( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onCancelClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onOkClick( wxCommandEvent& event ) { event.Skip(); }

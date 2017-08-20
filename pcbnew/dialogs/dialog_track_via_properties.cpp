@@ -184,7 +184,7 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
                         viaEndLayer = boost::none;
 
                     if( viaType && ( *viaType != v->GetViaType() ) )
-                        viaType = boost::none;
+                        viaType = VIA_NOT_DEFINED;
                 }
 
                 if( v->IsLocked() )
@@ -289,7 +289,7 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
 
     bool changeLock = m_lockedCbox->Get3StateValue() != wxCHK_UNDETERMINED;
     bool setLock = m_lockedCbox->Get3StateValue() == wxCHK_CHECKED;
-    bool setNetclassSizes = false;
+//    bool setNetclassSizes = false;
 
     for( auto item : m_items )
     {
@@ -377,7 +377,7 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
                 if( m_ViaTypeChoice->GetSelection() != VIA_NOT_DEFINED )
                     v->SetViaType( (VIATYPE_T)m_ViaTypeChoice->GetSelection() );
 
-                if( !m_viaNetclass->IsChecked() )
+/*                if( !m_viaNetclass->IsChecked() )
                 {
                     if( m_ViaTypeChoice->GetSelection() == VIA_MICROVIA && (
                         v->GetWidth() < v->GetNetClass()->GetuViaDiameter()
@@ -408,6 +408,8 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
                 }
 
                 if( setNetclassSizes )
+*/
+                if( m_viaNetclass->IsChecked() )
                 {
                     switch( v->GetViaType() )
                     {
@@ -545,4 +547,42 @@ bool DIALOG_TRACK_VIA_PROPERTIES::check() const
     }
 
     return true;
+}
+
+void DIALOG_TRACK_VIA_PROPERTIES::onViaTypeChoice( wxCommandEvent& event )
+{
+    PCB_BASE_FRAME* wnd = (PCB_BASE_FRAME*)GetParent();
+    BOARD_DESIGN_SETTINGS designSettings = wnd->GetBoard()->GetDesignSettings();
+    switch( event.GetSelection() )
+    {
+        case VIA_MICROVIA:
+        {
+            if( !designSettings.m_MicroViasAllowed )
+            {
+                DisplayError( GetParent(), _( "MicroVias are not allowed" ) );
+                return;
+            }
+            break;
+        }
+        case VIA_BLIND_BURIED:
+        {
+            if( !designSettings.m_BlindBuriedViaAllowed )
+            {
+                DisplayError( GetParent(), _( "Blind and Burried vias are not allowed" ) );
+                return;
+            }
+            // No break here to get size check for BB vias
+        }
+        case VIA_THROUGH:
+        {
+            if( !m_viaNetclass->GetValue() && ( m_viaDiameter.GetValue() < designSettings.m_ViasMinSize || m_viaDrill.GetValue() < designSettings.m_ViasMinDrill ) )
+                DisplayError( GetParent(), _( "Via Dimeter/Drill size is smaller than allowed sizes." ) );
+            break;
+        }
+        case VIA_NOT_DEFINED:
+        {
+            break;
+        }      
+    }
+    event.Skip();
 }
