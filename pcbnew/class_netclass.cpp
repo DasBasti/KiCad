@@ -53,7 +53,7 @@ const int NETCLASS::DEFAULT_MAX_LENGTH = 0; // none if zero
 const int NETCLASS::DEFAULT_MAX_SKEW = 0; // none if zero
 const int NETCLASS::DEFAULT_STUB_LENGTH = 0; // none if zero
 const int NETCLASS::DEFAULT_TYPE = 0; // none if zero
-const unsigned NETCLASS::DEFAULT_LAYER = UINT_MAX; // all layers
+
 
 NETCLASS::NETCLASS( const wxString& aName ) :
     m_Name( aName )
@@ -76,7 +76,8 @@ NETCLASS::NETCLASS( const wxString& aName ) :
     SetMaxSkew( DEFAULT_MAX_SKEW );
     SetStubLength( DEFAULT_STUB_LENGTH );
     SetType( DEFAULT_TYPE );
-    SetLayer( DEFAULT_LAYER );
+    DEFAULT_LAYER_SELECTION.set();
+    SetLayer( DEFAULT_LAYER_SELECTION );
 }
 
 
@@ -322,9 +323,9 @@ void NETCLASS::Format( OUTPUTFORMATTER* aFormatter, int aNestLevel, int aControl
     {
         aFormatter->Print( aNestLevel+1, "(type %s)\n", FMT_IU( GetType() ).c_str() );
     }
-    if( DEFAULT_LAYER != GetLayer() )
+    if( DEFAULT_LAYER_SELECTION != GetLayer() )
     {
-        aFormatter->Print( aNestLevel+1, "(bind_layer %s)\n", FMT_IU( GetLayer() ).c_str() );
+        aFormatter->Print( aNestLevel+1, "(bind_layer %s)\n", FMT_IU( GetLayer().to_ulong() ).c_str() );
     }
 
 

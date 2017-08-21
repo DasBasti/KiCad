@@ -35,6 +35,7 @@
 #include <macros.h>
 #include <set>
 #include <memory>
+#include <bitset>
 #include <richio.h>
 
 
@@ -45,6 +46,7 @@ class BOARD_DESIGN_SETTINGS;
 
 DECL_SET_FOR_SWIG( STRINGSET, wxString )
 
+typedef std::bitset<32> layerSelection;
 
 /**
  * Class NETCLASS
@@ -71,7 +73,7 @@ private:
     static const int DEFAULT_MAX_SKEW;
     static const int DEFAULT_STUB_LENGTH;
     static const int DEFAULT_TYPE;
-    static const unsigned DEFAULT_LAYER;
+    layerSelection DEFAULT_LAYER_SELECTION;
     
     /**
      * There are four different types of signals that are known to the constraint manager.
@@ -138,7 +140,7 @@ protected:
     int         m_max_skew;             ///< maximum skew of all tracks in class
     int         m_stub_length;          ///< stub length of track
     int         m_type;                 ///< routing type
-    unsigned    m_layer;                ///< each bit is a layer 1..32
+    layerSelection    m_layer;                ///< each bit is a layer 1..32
 
 public:
 
@@ -269,8 +271,8 @@ public:
     int     GetType() const                 { return m_type; }
     void    SetType( int aType )            { m_type = aType; }
     
-    unsigned    GetLayer() const            { return  m_layer; }
-    void    SetLayer( unsigned aLayer )     { m_layer = aLayer; }
+    layerSelection    GetLayer() const             { return  m_layer; }
+    void    SetLayer( layerSelection aLayer)    { m_layer = aLayer; }
 
     
     
