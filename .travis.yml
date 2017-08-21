@@ -1,0 +1,24 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+- gcc
+os:
+- linux
+before_install:
+- echo $LANG
+- echo $LC_ALL
+- sudo apt update -qq
+- sudo apt install -qq build-essential libwxbase3.0-dev libwxgtk3.0-dev libglew-dev libglm-dev libcurl4-gnutls-dev libcairo2-dev libboost-all-dev swig python-wxgtk3.0-dev doxygen libssl-dev git cmake 
+before_script:
+- travis_retry bundle
+- mkdir -p build/ci
+- cd build/ci
+- cmake -DCMAKE_BUILD_TYPE=Debug -DKICAD_SCRIPTING=ON -DKICAD_SCRIPTING_MODULES=ON -DKICAD_SCRIPTING_WXPYTHON=ON ../..
+script: make
+branches:
+  only:
+  - dev
+notifications:
+  email:
+  - neumann.bastian@gmail.com
