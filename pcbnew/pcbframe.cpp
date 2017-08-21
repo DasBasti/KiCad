@@ -48,6 +48,7 @@
 #include <drc_stuff.h>
 #include <layer_widget.h>
 #include <dialog_design_rules.h>
+#include <dialog_via_layers.h>
 #include <class_pcb_layer_widget.h>
 #include <hotkeys.h>
 #include <config_params.h>
@@ -196,6 +197,9 @@ BEGIN_EVENT_TABLE( PCB_EDIT_FRAME, PCB_BASE_FRAME )
 
     // Menu Get Design Rules Editor
     EVT_MENU( ID_MENU_PCB_SHOW_DESIGN_RULES_DIALOG, PCB_EDIT_FRAME::ShowDesignRulesEditor )
+    
+    // Menu Get Via Layer Selection Editor
+    EVT_MENU( ID_MENU_PCB_SHOW_VIA_LAYERS_DIALOG, PCB_EDIT_FRAME::ShowViaLayersEditor )
 
     // Horizontal toolbar
     EVT_TOOL( ID_RUN_LIBRARY, PCB_EDIT_FRAME::Process_Special_Functions )
@@ -785,6 +789,19 @@ void PCB_EDIT_FRAME::ShowDesignRulesEditor( wxCommandEvent& event )
         ReCreateAuxiliaryToolbar();
         OnModify();
     }
+}
+
+void PCB_EDIT_FRAME::ShowViaLayersEditor( wxCommandEvent& event )
+{
+    DIALOG_VIA_LAYERS vL_editor( this, m_Pcb->GetDesignSettings());
+    int returncode = vL_editor.ShowModal();
+
+    if( returncode == wxID_OK )     // New rules, or others changes.
+    {
+        ReCreateLayerBox();
+        ReCreateAuxiliaryToolbar();
+        OnModify();
+    }    
 }
 
 

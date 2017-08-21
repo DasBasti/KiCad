@@ -658,6 +658,12 @@ public:
      */
     void ShowDesignRulesEditor( wxCommandEvent& event );
 
+    /**
+     * Function ShowViaLayersEditor
+     * displays the Via Layers Editor to select start and end layers for via types.
+     */
+    void ShowViaLayersEditor( wxCommandEvent& event );
+
     /* toolbars update UI functions: */
 
     void PrepareLayerIndicator();

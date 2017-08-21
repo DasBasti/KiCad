@@ -551,8 +551,8 @@ static void class2gridRow( wxGrid* grid, int row, NETCLASSPTR nc )
     msg = StringFromValue( g_UserUnit, nc->GetType() );
     grid->SetCellValue( row, GRID_SIGNAL_TYPE, msg );
     
-    msg = StringFromValue( g_UserUnit, nc->GetLayer() );
-    grid->SetCellValue( row, GRID_RESTRICT_LAYERS, msg );
+    //msg = StringFromValue( g_UserUnit, nc->GetLayer() );
+    //grid->SetCellValue( row, GRID_RESTRICT_LAYERS, msg );
 
 }
 

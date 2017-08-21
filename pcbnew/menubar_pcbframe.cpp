@@ -186,6 +186,10 @@ void prepareDesignRulesMenu( wxMenu* aParentMenu )
     AddMenuItem( aParentMenu, ID_PCB_LAYERS_SETUP,
                  _( "&Layers Setup" ),  _( "Enable and set layer properties" ),
                  KiBitmap( copper_layers_setup_xpm ) );
+    
+    AddMenuItem( aParentMenu, ID_MENU_PCB_SHOW_VIA_LAYERS_DIALOG,
+                 _( "&Via Layer Setup" ), _( "Select start and end layers for vias" ),
+                 KiBitmap( config_xpm ) );
 }
 
 
