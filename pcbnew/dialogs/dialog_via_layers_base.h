@@ -66,7 +66,7 @@ class DIALOG_VIA_LAYERS_BASE : public DIALOG_SHIM
 	
 	public:
 		
-		DIALOG_VIA_LAYERS_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Track width and via size"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 354,236 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER ); 
+		DIALOG_VIA_LAYERS_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Via layer config"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 354,236 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER ); 
 		~DIALOG_VIA_LAYERS_BASE();
 	
 };
