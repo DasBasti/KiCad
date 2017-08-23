@@ -33,47 +33,42 @@ DIALOG_VIA_LAYERS::DIALOG_VIA_LAYERS( wxWindow* aParent, BOARD_DESIGN_SETTINGS& 
     DIALOG_VIA_LAYERS_BASE( aParent ),
     m_settings( aSettings )
 {
+  std::list<wxBoxSizer*> layers;
+  std::list<wxBoxSizer*>::iterator itLayers;
 
-    // Set all the layer dropdowns
-    m_ViaStartLayer->SetLayersHotkeys( false );
-    m_ViaStartLayer->SetLayerSet( LSET::AllNonCuMask() );
-    m_ViaStartLayer->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
-    m_ViaStartLayer->Resync();
+    for( int i = 0; i < 10; i++ )
+    {
+        wxBoxSizer* bSizerVialListItem;
+        bSizerVialListItem = new wxBoxSizer( wxHORIZONTAL );
+        
+        wxStaticText* staticTextViaName = new wxStaticText( m_scrolledWindow1, wxID_ANY, _("Through"), wxDefaultPosition, wxSize( 100,-1 ), 0 );
+        staticTextViaName->Wrap( -1 );
+        bSizerVialListItem->Add( staticTextViaName, 0, wxALL, 5 );
+        
+        PCB_LAYER_BOX_SELECTOR* ViaStartLayer = new PCB_LAYER_BOX_SELECTOR( m_scrolledWindow1, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0, NULL, 0 ); 
+        bSizerVialListItem->Add( ViaStartLayer, 0, wxALL, 5 );
+        
+        PCB_LAYER_BOX_SELECTOR* ViaEndLayer = new PCB_LAYER_BOX_SELECTOR( m_scrolledWindow1, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0, NULL, 0 ); 
+        bSizerVialListItem->Add( ViaEndLayer, 0, wxALL, 5 );
+        
+        wxTextCtrl* textCtrl1 = new wxTextCtrl( m_scrolledWindow1, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0 );
+        bSizerVialListItem->Add( textCtrl1, 0, wxALL, 5 );
+        
+        wxTextCtrl* textCtrl2 = new wxTextCtrl( m_scrolledWindow1, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0 );
+        bSizerVialListItem->Add( textCtrl2, 0, wxALL, 5 );
+    }
     
-    m_ViaEndLayer->SetLayersHotkeys( false );
-    m_ViaEndLayer->SetLayerSet( LSET::AllNonCuMask() );
-    m_ViaEndLayer->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
-    m_ViaEndLayer->Resync();
+    for( itLayers = layers.begin(); itLayers != layers.end(); ++itLayers )
+    {
+/*        fgSizerVias->Add( *itLayers, 0, wxALL, 5 );
+        (*itLayers)->SetLayersHotkeys( false );
+        (*itLayers)->SetLayerSet( LSET::AllNonCuMask() );
+        (*itLayers)->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
+        (*itLayers)->Resync();
+  */      bSizerVialListItems->Add( (*itLayers), 1, wxEXPAND, 0 );        
+    }
 
-    m_BlindBurriedViaStartLayer->SetLayersHotkeys( false );
-    m_BlindBurriedViaStartLayer->SetLayerSet( LSET::AllNonCuMask() );
-    m_BlindBurriedViaStartLayer->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
-    m_BlindBurriedViaStartLayer->Resync();
 
-    m_BlindBurriedViaEndLayer->SetLayersHotkeys( false );
-    m_BlindBurriedViaEndLayer->SetLayerSet( LSET::AllNonCuMask() );
-    m_BlindBurriedViaEndLayer->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
-    m_BlindBurriedViaEndLayer->Resync();
-
-    m_MicroViaTopStartLayer->SetLayersHotkeys( false );
-    m_MicroViaTopStartLayer->SetLayerSet( LSET::AllNonCuMask() );
-    m_MicroViaTopStartLayer->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
-    m_MicroViaTopStartLayer->Resync();
-
-    m_MicroViaTopEndLayer->SetLayersHotkeys( false );
-    m_MicroViaTopEndLayer->SetLayerSet( LSET::AllNonCuMask() );
-    m_MicroViaTopEndLayer->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
-    m_MicroViaTopEndLayer->Resync();
-
-    m_MicroViaBottomStartLayer->SetLayersHotkeys( false );
-    m_MicroViaBottomStartLayer->SetLayerSet( LSET::AllNonCuMask() );
-    m_MicroViaBottomStartLayer->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
-    m_MicroViaBottomStartLayer->Resync();
-
-    m_MicroViaBottomEndLayer->SetLayersHotkeys( false );
-    m_MicroViaBottomEndLayer->SetLayerSet( LSET::AllNonCuMask() );
-    m_MicroViaBottomEndLayer->SetBoardFrame( (PCB_BASE_FRAME*)aParent );
-    m_MicroViaBottomEndLayer->Resync();
   
     // Now all widgets have the size fixed, call FinishDialogSettings
     FinishDialogSettings();

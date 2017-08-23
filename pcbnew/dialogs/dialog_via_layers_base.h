@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Aug 23 2017)
+// C++ code generated with wxFormBuilder (version Feb 16 2016)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -25,6 +25,8 @@ class PCB_LAYER_BOX_SELECTOR;
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/bmpcbox.h>
+#include <wx/textctrl.h>
+#include <wx/scrolwin.h>
 #include <wx/statline.h>
 #include <wx/dialog.h>
 
@@ -42,12 +44,20 @@ class DIALOG_VIA_LAYERS_BASE : public DIALOG_SHIM
 		wxGrid* m_gridViaStack;
 		wxButton* m_buttonAddVia;
 		wxButton* m_buttonRemoveVia;
+		wxFlexGridSizer* fgSizerVias;
+		wxBoxSizer* bSizerViaList;
 		wxStaticText* m_staticText3;
 		wxStaticText* m_staticText71;
 		wxStaticText* m_staticText8;
+		wxStaticText* m_staticText81;
+		wxStaticText* m_staticText811;
+		wxScrolledWindow* m_scrolledWindow1;
+		wxBoxSizer* bSizerVialListItems;
 		wxStaticText* m_staticTextViaName;
 		PCB_LAYER_BOX_SELECTOR* m_ViaStartLayer;
 		PCB_LAYER_BOX_SELECTOR* m_ViaEndLayer;
+		wxTextCtrl* m_textCtrl1;
+		wxTextCtrl* m_textCtrl2;
 		wxStaticLine* m_staticline2;
 		wxStdDialogButtonSizer* m_stdButtons;
 		wxButton* m_stdButtonsOK;
@@ -61,7 +71,7 @@ class DIALOG_VIA_LAYERS_BASE : public DIALOG_SHIM
 	
 	public:
 		
-		DIALOG_VIA_LAYERS_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Via layer config"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 667,334 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER ); 
+		DIALOG_VIA_LAYERS_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Via layer config"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 888,334 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER ); 
 		~DIALOG_VIA_LAYERS_BASE();
 	
 };

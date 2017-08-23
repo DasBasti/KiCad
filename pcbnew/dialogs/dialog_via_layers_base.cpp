@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Aug 23 2017)
+// C++ code generated with wxFormBuilder (version Feb 16 2016)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -57,10 +57,10 @@ DIALOG_VIA_LAYERS_BASE::DIALOG_VIA_LAYERS_BASE( wxWindow* parent, wxWindowID id,
 	wxBoxSizer* bSizer7;
 	bSizer7 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_buttonAddVia = new wxButton( this, wxID_ANY, _("MyButton"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonAddVia = new wxButton( this, wxID_ANY, _("Add Via Type"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer7->Add( m_buttonAddVia, 0, wxALL, 5 );
 	
-	m_buttonRemoveVia = new wxButton( this, wxID_ANY, _("MyButton"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonRemoveVia = new wxButton( this, wxID_ANY, _("Delete Via Type"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer7->Add( m_buttonRemoveVia, 0, wxALL, 5 );
 	
 	
@@ -72,36 +72,76 @@ DIALOG_VIA_LAYERS_BASE::DIALOG_VIA_LAYERS_BASE( wxWindow* parent, wxWindowID id,
 	wxBoxSizer* bSizer2;
 	bSizer2 = new wxBoxSizer( wxVERTICAL );
 	
-	wxFlexGridSizer* fgSizer1;
-	fgSizer1 = new wxFlexGridSizer( 0, 3, 0, 0 );
-	fgSizer1->AddGrowableCol( 1 );
-	fgSizer1->SetFlexibleDirection( wxBOTH );
-	fgSizer1->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	fgSizerVias = new wxFlexGridSizer( 0, 5, 0, 0 );
+	fgSizerVias->AddGrowableCol( 1 );
+	fgSizerVias->SetFlexibleDirection( wxBOTH );
+	fgSizerVias->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
-	m_staticText3 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	
+	bSizer2->Add( fgSizerVias, 1, wxEXPAND|wxALL, 5 );
+	
+	bSizerViaList = new wxBoxSizer( wxVERTICAL );
+	
+	wxBoxSizer* bSizerViaListHeader;
+	bSizerViaListHeader = new wxBoxSizer( wxHORIZONTAL );
+	
+	m_staticText3 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0 );
 	m_staticText3->Wrap( -1 );
-	fgSizer1->Add( m_staticText3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+	bSizerViaListHeader->Add( m_staticText3, 0, wxALL, 5 );
 	
-	m_staticText71 = new wxStaticText( this, wxID_ANY, _("Start Layer"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText71 = new wxStaticText( this, wxID_ANY, _("Start Layer"), wxDefaultPosition, wxSize( 100,-1 ), 0 );
 	m_staticText71->Wrap( -1 );
-	fgSizer1->Add( m_staticText71, 0, wxALL, 5 );
+	bSizerViaListHeader->Add( m_staticText71, 0, wxALL, 5 );
 	
-	m_staticText8 = new wxStaticText( this, wxID_ANY, _("End Layer"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8 = new wxStaticText( this, wxID_ANY, _("End Layer"), wxDefaultPosition, wxSize( 100,-1 ), 0 );
 	m_staticText8->Wrap( -1 );
-	fgSizer1->Add( m_staticText8, 0, wxALL, 5 );
+	bSizerViaListHeader->Add( m_staticText8, 0, wxALL, 5 );
 	
-	m_staticTextViaName = new wxStaticText( this, wxID_ANY, _("Through"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText81 = new wxStaticText( this, wxID_ANY, _("End Layer"), wxDefaultPosition, wxSize( 100,-1 ), 0 );
+	m_staticText81->Wrap( -1 );
+	bSizerViaListHeader->Add( m_staticText81, 0, wxALL, 5 );
+	
+	m_staticText811 = new wxStaticText( this, wxID_ANY, _("End Layer"), wxDefaultPosition, wxSize( 100,-1 ), 0 );
+	m_staticText811->Wrap( -1 );
+	bSizerViaListHeader->Add( m_staticText811, 0, wxALL, 5 );
+	
+	
+	bSizerViaList->Add( bSizerViaListHeader, 0, wxEXPAND, 0 );
+	
+	m_scrolledWindow1 = new wxScrolledWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	m_scrolledWindow1->SetScrollRate( 5, 5 );
+	bSizerVialListItems = new wxBoxSizer( wxHORIZONTAL );
+	
+	wxBoxSizer* bSizerVialListItem;
+	bSizerVialListItem = new wxBoxSizer( wxHORIZONTAL );
+	
+	m_staticTextViaName = new wxStaticText( m_scrolledWindow1, wxID_ANY, _("Through"), wxDefaultPosition, wxSize( 100,-1 ), 0 );
 	m_staticTextViaName->Wrap( -1 );
-	fgSizer1->Add( m_staticTextViaName, 0, wxALL, 5 );
+	bSizerVialListItem->Add( m_staticTextViaName, 0, wxALL, 5 );
 	
-	m_ViaStartLayer = new PCB_LAYER_BOX_SELECTOR( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 ); 
-	fgSizer1->Add( m_ViaStartLayer, 0, wxALL, 5 );
+	m_ViaStartLayer = new PCB_LAYER_BOX_SELECTOR( m_scrolledWindow1, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0, NULL, 0 ); 
+	bSizerVialListItem->Add( m_ViaStartLayer, 0, wxALL, 5 );
 	
-	m_ViaEndLayer = new PCB_LAYER_BOX_SELECTOR( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 ); 
-	fgSizer1->Add( m_ViaEndLayer, 0, wxALL, 5 );
+	m_ViaEndLayer = new PCB_LAYER_BOX_SELECTOR( m_scrolledWindow1, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0, NULL, 0 ); 
+	bSizerVialListItem->Add( m_ViaEndLayer, 0, wxALL, 5 );
+	
+	m_textCtrl1 = new wxTextCtrl( m_scrolledWindow1, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0 );
+	bSizerVialListItem->Add( m_textCtrl1, 0, wxALL, 5 );
+	
+	m_textCtrl2 = new wxTextCtrl( m_scrolledWindow1, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 100,-1 ), 0 );
+	bSizerVialListItem->Add( m_textCtrl2, 0, wxALL, 5 );
 	
 	
-	bSizer2->Add( fgSizer1, 1, wxEXPAND|wxALL, 5 );
+	bSizerVialListItems->Add( bSizerVialListItem, 1, wxEXPAND, 0 );
+	
+	
+	m_scrolledWindow1->SetSizer( bSizerVialListItems );
+	m_scrolledWindow1->Layout();
+	bSizerVialListItems->Fit( m_scrolledWindow1 );
+	bSizerViaList->Add( m_scrolledWindow1, 1, wxEXPAND | wxALL, 0 );
+	
+	
+	bSizer2->Add( bSizerViaList, 1, wxEXPAND, 5 );
 	
 	
 	bSizer5->Add( bSizer2, 2, wxEXPAND, 5 );
