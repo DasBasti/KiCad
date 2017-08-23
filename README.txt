@@ -1,3 +1,14 @@
+Changes in this branch
+============
+
+This KiCad version does try to enable a lot more freedom to design boards. It comes 
+with a lot changes in the via placement and creation. 
+
+Features to come:
+- Via stackup dialog
+- Change layers of µVias
+- Constraint management for netclasses
+
 KiCad README
 ============
 For specific documentation like Compiling, GUI translation, old
