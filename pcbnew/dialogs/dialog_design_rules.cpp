@@ -47,6 +47,8 @@
 #include <wx/generic/gridctrl.h>
 #include <dialog_design_rules_aux_helper_class.h>
 
+#include <class_pcb_layer_box_selector.h>
+
 // Column labels for net lists
 #define NET_TITLE       _( "Net" )
 #define CLASS_TITLE     _( "Class" )
@@ -368,13 +370,17 @@ void DIALOG_DESIGN_RULES::InitDimensionsLists()
             m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_DRILL, msg );            
         }
         
-        m_gridViaSizeList->SetCellEditor( ii, GRID_VIA_SIZE_TYPE, new wxGridCellChoiceEditor(m_viaTypeList, false) );
-        
+        m_gridViaSizeList->SetCellEditor( ii, GRID_VIA_SIZE_TYPE, new wxGridCellChoiceEditor( m_viaTypeList, false ) );
         if( m_ViasDimensionsList[ii].m_Type != VIA_NOT_DEFINED )
         {
             //msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_Type, false );
             m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_TYPE, m_viaTypeList[ (int)m_ViasDimensionsList[ii].m_Type ] );            
         }
+
+        // Get class of type GridCellEditor of PCB_LAYER_BOX
+        LSET layer = m_Pcb->GetDesignSettings().GetEnabledLayers();
+
+        //m_gridViaSizeList->SetCellEditor( ii, GRID_VIA_SIZE_START, new wxGridCellChoiceEditor() );       
         if( m_ViasDimensionsList[ii].m_StartLayer < F_Cu )
         {
             msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_StartLayer, false );
@@ -686,7 +692,7 @@ void DIALOG_DESIGN_RULES::CopyDimensionsListsToBoard()
             value = ValueFromString( g_UserUnit, msg );
             via_dim.m_Drill = value;
         }
-
+//TODO
         m_ViasDimensionsList.push_back( via_dim );
     }
 
@@ -1257,6 +1263,7 @@ bool DIALOG_DESIGN_RULES::TestDataValidity( wxString* aErrorMsg )
                         row + 1, GetChars( tvalue ) );
             errorMsg += msg;
         }
+        //TODO
     }
 
     if( !result && aErrorMsg )
