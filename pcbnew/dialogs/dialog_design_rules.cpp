@@ -305,7 +305,7 @@ void DIALOG_DESIGN_RULES::InitGlobalRules()
 
     m_OptAllowBlindBuriedVias->SetValue( m_BrdSettings->m_BlindBuriedViaAllowed );
     m_OptAllowMicroVias->SetValue( m_BrdSettings->m_MicroViasAllowed );
-    OnAllowMicroVias();
+    CheckAllowMicroVias();
 
     PutValueInLocalUnits( *m_SetMicroViasMinSizeCtrl, m_BrdSettings->m_MicroViasMinSize );
     PutValueInLocalUnits( *m_SetMicroViasMinDrillCtrl, m_BrdSettings->m_MicroViasMinDrill );
@@ -844,6 +844,13 @@ void DIALOG_DESIGN_RULES::OnRemoveNetclassClick( wxCommandEvent& event )
     }
 }
 
+void DIALOG_DESIGN_RULES::CheckAllowMicroVias()
+{
+    bool enabled = m_OptAllowMicroVias->GetValue();
+    m_SetMicroViasMinSizeCtrl->Enable( enabled );
+    m_SetMicroViasMinDrillCtrl->Enable( enabled );
+}
+
 /**
  * Function OnAddViaSizeClick
  * is called whenever you want to input more vias than lines in the table.
@@ -888,13 +895,7 @@ void DIALOG_DESIGN_RULES::OnDelTrackSizeClick( wxCommandEvent& event )
  */
 void DIALOG_DESIGN_RULES::OnAllowMicroVias( wxCommandEvent& event )
 {
-    OnAllowMicroVias();
-}
-void DIALOG_DESIGN_RULES::OnAllowMicroVias( )
-{
-    bool enabled = m_OptAllowMicroVias->GetValue();
-    m_SetMicroViasMinSizeCtrl->Enable( enabled );
-    m_SetMicroViasMinDrillCtrl->Enable( enabled );
+    CheckAllowMicroVias();
 }
 
 void DIALOG_DESIGN_RULES::OnMoveUpSelectedNetClass( wxCommandEvent& event )
