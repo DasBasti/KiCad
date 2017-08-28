@@ -355,6 +355,9 @@ void DIALOG_DESIGN_RULES::InitDimensionsLists()
     m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_END, 150 );
     m_gridViaSizeList->AutoSizeColumns( false );
 
+    m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_START, 150 );
+    m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_END, 150 );
+    m_gridViaSizeList->AutoSizeColumns( false );
     m_gridTrackWidthList->SetColMinimalWidth( 0, 150 );
     m_gridTrackWidthList->AutoSizeColumns( true );
 
@@ -887,6 +890,44 @@ void DIALOG_DESIGN_RULES::CheckAllowMicroVias()
     bool enabled = m_OptAllowMicroVias->GetValue();
     m_SetMicroViasMinSizeCtrl->Enable( enabled );
     m_SetMicroViasMinDrillCtrl->Enable( enabled );
+}
+
+/**
+ * Function OnAddViaSizeClick
+ * is called whenever you want to input more vias than lines in the table.
+ */
+void DIALOG_DESIGN_RULES::OnAddViaSizeClick( wxCommandEvent& event )
+{
+    m_gridViaSizeList->AppendRows();
+}
+
+/**
+ * Function OnRemoveViaSizeClick
+ * is called whenever you want to remove the selected line from the table.
+ */ 
+void DIALOG_DESIGN_RULES::OnRemoveViaSizeClick( wxCommandEvent& event )
+{
+    if( m_gridViaSizeList->GetNumberRows() > 0 )
+        m_gridViaSizeList->DeleteRows( m_gridViaSizeList->GetCursorRow() );
+}
+
+/**
+ * Function OnAddTrackSizeClick
+ * is called whenever you want to add more track sizes to the table.
+ */
+void DIALOG_DESIGN_RULES::OnAddTrackSizeClick( wxCommandEvent& event )
+{
+    m_gridTrackWidthList->AppendRows();
+}
+
+/**
+ * Function OnDelTrackSizeClick
+ * is called whneever you want to remove the selected line from the table.
+ */
+void DIALOG_DESIGN_RULES::OnDelTrackSizeClick( wxCommandEvent& event )
+{
+    if( m_gridTrackWidthList->GetNumberRows() > 0 )
+        m_gridTrackWidthList->DeleteRows( m_gridTrackWidthList->GetCursorRow() );
 }
 
 /**
