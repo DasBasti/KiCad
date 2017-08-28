@@ -178,6 +178,7 @@ thru
 thru_hole
 thru_hole_only
 tstamp
+type
 user
 user_trace_width
 user_via

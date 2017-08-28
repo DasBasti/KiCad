@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Feb  6 2017)
+// C++ code generated with wxFormBuilder (version Feb 16 2016)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -93,8 +93,12 @@ class DIALOG_DESIGN_RULES_BASE : public DIALOG_SHIM
 		wxStaticText* m_staticTextInfo;
 		wxStaticText* m_staticText7;
 		wxGrid* m_gridViaSizeList;
+		wxButton* m_AddViaSizeButton;
+		wxButton* m_DelViaSizeButton;
 		wxStaticText* m_staticText8;
 		wxGrid* m_gridTrackWidthList;
+		wxButton* m_AddTrackSizeButton;
+		wxButton* m_DelTrackSizeButton;
 		wxStaticLine* m_staticline2;
 		wxStdDialogButtonSizer* m_sdbSizer1;
 		wxButton* m_sdbSizer1OK;
@@ -114,11 +118,15 @@ class DIALOG_DESIGN_RULES_BASE : public DIALOG_SHIM
 		virtual void OnRightCBSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRightSelectAllButton( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAllowMicroVias( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnAddViaSizeClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnRemoveViaSizeClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnAddTrackSizeClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDelTrackSizeClick( wxCommandEvent& event ) { event.Skip(); }
 		
 	
 	public:
 		
-		DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Design Rules Editor"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 798,611 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER ); 
+		DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Design Rules Editor"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 820,621 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER ); 
 		~DIALOG_DESIGN_RULES_BASE();
 	
 };

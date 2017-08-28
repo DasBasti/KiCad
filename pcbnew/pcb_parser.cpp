@@ -1071,10 +1071,13 @@ void PCB_PARSER::parseSetup()
             break;
 
         case T_user_via:
-            {
+            {   /* TODO add parse function for type and cu layer */
                 int viaSize = parseBoardUnits( "user via size" );
                 int viaDrill = parseBoardUnits( "user via drill" );
-                designSettings.m_ViasDimensionsList.push_back( VIA_DIMENSION( viaSize, viaDrill ) );
+                VIATYPE_T viaType = (VIATYPE_T)parseInt( "user via type" );
+                PCB_LAYER_ID viaStartLayer = (PCB_LAYER_ID)parseInt( "user via start" );
+                PCB_LAYER_ID viaEndLayer = (PCB_LAYER_ID)parseInt( "user via end" );
+                designSettings.m_ViasDimensionsList.push_back( VIA_DIMENSION( viaSize, viaDrill, viaType, viaStartLayer, viaEndLayer ) );
                 NeedRIGHT();
             }
             break;

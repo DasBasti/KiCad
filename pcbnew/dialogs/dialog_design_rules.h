@@ -89,13 +89,20 @@ private:
     // List of values to "customize" some tracks and vias
     std::vector <VIA_DIMENSION> m_ViasDimensionsList;
     std::vector <int> m_TracksWidthList;
+    
+    wxArrayString m_viaTypeList;
 
 private:
     void OnNetClassesNameLeftClick( wxGridEvent& event ) override { event.Skip(); }
     void OnNetClassesNameRightClick( wxGridEvent& event ) override { event.Skip(); }
     void OnAddNetclassClick( wxCommandEvent& event ) override;
     void OnRemoveNetclassClick( wxCommandEvent& event ) override;
+    void OnAllowMicroVias();
     void OnAllowMicroVias( wxCommandEvent& event ) override;
+    void OnAddViaSizeClick( wxCommandEvent& event ) override; 
+    void OnRemoveViaSizeClick( wxCommandEvent& event ) override;
+    void OnAddTrackSizeClick( wxCommandEvent& event ) override;
+    void OnDelTrackSizeClick( wxCommandEvent& event ) override;
 
     /*
      * Called on "Move Up" button click

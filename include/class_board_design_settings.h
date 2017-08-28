@@ -57,28 +57,49 @@
 /**
  * Struct VIA_DIMENSION
  * is a small helper container to handle a stock of specific vias each with
- * unique diameter and drill sizes in the BOARD class.
+ * unique diameter, drill sizes, via type, start and end layer in the BOARD class.
  */
 struct VIA_DIMENSION
 {
-    int m_Diameter;     // <= 0 means use Netclass via diameter
-    int m_Drill;        // <= 0 means use Netclass via drill
+    int m_Diameter;            // <= 0 means use Netclass via diameter
+    int m_Drill;               // <= 0 means use Netclass via drill
+    VIATYPE_T m_Type;          // <= 0 means VIA_THROUGH
+    PCB_LAYER_ID m_StartLayer; // <= 0 Means F.Cu
+    PCB_LAYER_ID m_EndLayer;   // <= 0 Menas B.Cu
 
     VIA_DIMENSION()
     {
-        m_Diameter = 0;
-        m_Drill    = 0;
+        m_Diameter   = 0;
+        m_Drill      = 0;
+        m_Type       = VIA_THROUGH;
+        m_StartLayer = F_Cu;
+        m_EndLayer   = B_Cu;
     }
 
+    // function for backwards compatibility add via as VIA_THROUGH 
     VIA_DIMENSION( int aDiameter, int aDrill )
     {
-        m_Diameter = aDiameter;
-        m_Drill    = aDrill;
+        m_Diameter   = aDiameter;
+        m_Drill      = aDrill;
+        m_Type       = VIA_THROUGH;
+        m_StartLayer = F_Cu;
+        m_EndLayer   = B_Cu;
+    }
+
+    VIA_DIMENSION( int aDiameter, int aDrill, VIATYPE_T aType, PCB_LAYER_ID aStartLayer, PCB_LAYER_ID aEndLayer )
+    {
+        m_Diameter   = aDiameter;
+        m_Drill      = aDrill;
+        m_Type       = aType;
+        m_StartLayer = aStartLayer;
+        m_EndLayer   = aEndLayer;
     }
 
     bool operator==( const VIA_DIMENSION& aOther ) const
     {
-        return ( m_Diameter == aOther.m_Diameter ) && ( m_Drill == aOther.m_Drill );
+        return ( m_Diameter == aOther.m_Diameter ) && ( m_Drill == aOther.m_Drill )
+            && ( m_Type == aOther.m_Type) && (m_StartLayer == aOther.m_StartLayer )
+            && ( m_EndLayer == aOther.m_EndLayer );
     }
 
     bool operator<( const VIA_DIMENSION& aOther ) const

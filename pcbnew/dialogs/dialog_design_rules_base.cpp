@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Feb  6 2017)
+// C++ code generated with wxFormBuilder (version Feb 16 2016)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -291,18 +291,26 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_gridViaSizeList = new wxGrid( sViaSizeBox->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	
 	// Grid
-	m_gridViaSizeList->CreateGrid( 8, 2 );
+	m_gridViaSizeList->CreateGrid( 8, 5 );
 	m_gridViaSizeList->EnableEditing( true );
 	m_gridViaSizeList->EnableGridLines( true );
 	m_gridViaSizeList->EnableDragGridSize( false );
 	m_gridViaSizeList->SetMargins( 0, 0 );
 	
 	// Columns
+	m_gridViaSizeList->SetColSize( 0, 90 );
+	m_gridViaSizeList->SetColSize( 1, 90 );
+	m_gridViaSizeList->SetColSize( 2, 90 );
+	m_gridViaSizeList->SetColSize( 3, 90 );
+	m_gridViaSizeList->SetColSize( 4, 90 );
 	m_gridViaSizeList->EnableDragColMove( false );
 	m_gridViaSizeList->EnableDragColSize( true );
 	m_gridViaSizeList->SetColLabelSize( 30 );
 	m_gridViaSizeList->SetColLabelValue( 0, _("Diameter") );
 	m_gridViaSizeList->SetColLabelValue( 1, _("Drill") );
+	m_gridViaSizeList->SetColLabelValue( 2, _("Type") );
+	m_gridViaSizeList->SetColLabelValue( 3, _("From") );
+	m_gridViaSizeList->SetColLabelValue( 4, _("To") );
 	m_gridViaSizeList->SetColLabelAlignment( wxALIGN_CENTRE, wxALIGN_CENTRE );
 	
 	// Rows
@@ -327,6 +335,18 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	// Cell Defaults
 	m_gridViaSizeList->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
 	sViaSizeBox->Add( m_gridViaSizeList, 1, wxALL|wxEXPAND, 5 );
+	
+	wxBoxSizer* bViaButtonSizer;
+	bViaButtonSizer = new wxBoxSizer( wxHORIZONTAL );
+	
+	m_AddViaSizeButton = new wxButton( sViaSizeBox->GetStaticBox(), wxID_ANY, _("Add"), wxDefaultPosition, wxDefaultSize, 0 );
+	bViaButtonSizer->Add( m_AddViaSizeButton, 0, wxALL, 5 );
+	
+	m_DelViaSizeButton = new wxButton( sViaSizeBox->GetStaticBox(), wxID_ANY, _("Remove"), wxDefaultPosition, wxDefaultSize, 0 );
+	bViaButtonSizer->Add( m_DelViaSizeButton, 0, wxALL, 5 );
+	
+	
+	sViaSizeBox->Add( bViaButtonSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxLEFT|wxRIGHT|wxTOP, 5 );
 	
 	
 	bDesignRulesLowerSizer->Add( sViaSizeBox, 1, wxALL|wxEXPAND, 5 );
@@ -377,6 +397,18 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_gridTrackWidthList->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
 	sbTracksListSizer->Add( m_gridTrackWidthList, 1, wxALL|wxEXPAND, 5 );
 	
+	wxBoxSizer* bTracksButtonSizer;
+	bTracksButtonSizer = new wxBoxSizer( wxHORIZONTAL );
+	
+	m_AddTrackSizeButton = new wxButton( sbTracksListSizer->GetStaticBox(), wxID_ANY, _("Add"), wxDefaultPosition, wxDefaultSize, 0 );
+	bTracksButtonSizer->Add( m_AddTrackSizeButton, 0, wxALL, 5 );
+	
+	m_DelTrackSizeButton = new wxButton( sbTracksListSizer->GetStaticBox(), wxID_ANY, _("Remove"), wxDefaultPosition, wxDefaultSize, 0 );
+	bTracksButtonSizer->Add( m_DelTrackSizeButton, 0, wxALL, 5 );
+	
+	
+	sbTracksListSizer->Add( bTracksButtonSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxLEFT|wxRIGHT|wxTOP, 5 );
+	
 	
 	bDesignRulesLowerSizer->Add( sbTracksListSizer, 1, wxALL|wxEXPAND, 5 );
 	
@@ -421,6 +453,10 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_rightClassChoice->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnRightCBSelection ), NULL, this );
 	m_buttonRightSelAll->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnRightSelectAllButton ), NULL, this );
 	m_OptAllowMicroVias->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnAllowMicroVias ), NULL, this );
+	m_AddViaSizeButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnAddViaSizeClick ), NULL, this );
+	m_DelViaSizeButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnRemoveViaSizeClick ), NULL, this );
+	m_AddTrackSizeButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnAddTrackSizeClick ), NULL, this );
+	m_DelTrackSizeButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnDelTrackSizeClick ), NULL, this );
 }
 
 DIALOG_DESIGN_RULES_BASE::~DIALOG_DESIGN_RULES_BASE()
@@ -439,5 +475,9 @@ DIALOG_DESIGN_RULES_BASE::~DIALOG_DESIGN_RULES_BASE()
 	m_rightClassChoice->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnRightCBSelection ), NULL, this );
 	m_buttonRightSelAll->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnRightSelectAllButton ), NULL, this );
 	m_OptAllowMicroVias->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnAllowMicroVias ), NULL, this );
+	m_AddViaSizeButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnAddViaSizeClick ), NULL, this );
+	m_DelViaSizeButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnRemoveViaSizeClick ), NULL, this );
+	m_AddTrackSizeButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnAddTrackSizeClick ), NULL, this );
+	m_DelTrackSizeButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DIALOG_DESIGN_RULES_BASE::OnDelTrackSizeClick ), NULL, this );
 	
 }

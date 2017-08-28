@@ -7,7 +7,7 @@
  *
  * Copyright (C) 2004-2009 Jean-Pierre Charras, jp.charras at wanadoo.fr
  * Copyright (C) 2009 Dick Hollenbeck, dick@softplc.com
- * Copyright (C) 2009-2015 KiCad Developers, see change_log.txt for contributors.
+ * Copyright (C) 2009-2017 KiCad Developers, see change_log.txt for contributors.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -61,6 +61,14 @@ enum {
     GRID_uVIADRILL,
     GRID_DIFF_PAIR_WIDTH,
     GRID_DIFF_PAIR_GAP
+};
+
+enum {
+    GRID_VIA_SIZE_DIAMETER,
+    GRID_VIA_SIZE_DRILL,
+    GRID_VIA_SIZE_TYPE,
+    GRID_VIA_SIZE_START,
+    GRID_VIA_SIZE_END
 };
 
 const wxString DIALOG_DESIGN_RULES::wildCard = _( "* (Any)" );
@@ -183,6 +191,11 @@ DIALOG_DESIGN_RULES::DIALOG_DESIGN_RULES( PCB_EDIT_FRAME* parent ) :
 
     SetDataValidators();
 
+    m_viaTypeList.Add(wxT(""));
+    m_viaTypeList.Add(wxT("MICRO"));
+    m_viaTypeList.Add(wxT("BLIND/BURRIED"));
+    m_viaTypeList.Add(wxT("THROUGH"));
+
     m_leftListCtrl->InsertColumn( 0, column0 );
     m_leftListCtrl->InsertColumn( 1, column1 );
     m_leftListCtrl->SetColumnWidth( 0, wxLIST_AUTOSIZE );
@@ -209,6 +222,7 @@ DIALOG_DESIGN_RULES::DIALOG_DESIGN_RULES( PCB_EDIT_FRAME* parent ) :
     m_gridViaSizeList->SetTabBehaviour( wxGrid::Tab_Leave );
     m_gridTrackWidthList->SetTabBehaviour( wxGrid::Tab_Leave );
 
+    
     Layout();
 
     // Now all widgets have the size fixed, call FinishDialogSettings
@@ -291,6 +305,7 @@ void DIALOG_DESIGN_RULES::InitGlobalRules()
 
     m_OptAllowBlindBuriedVias->SetValue( m_BrdSettings->m_BlindBuriedViaAllowed );
     m_OptAllowMicroVias->SetValue( m_BrdSettings->m_MicroViasAllowed );
+    OnAllowMicroVias();
 
     PutValueInLocalUnits( *m_SetMicroViasMinSizeCtrl, m_BrdSettings->m_MicroViasMinSize );
     PutValueInLocalUnits( *m_SetMicroViasMinDrillCtrl, m_BrdSettings->m_MicroViasMinDrill );
@@ -317,9 +332,12 @@ void DIALOG_DESIGN_RULES::InitDimensionsLists()
     m_gridViaSizeList->SetCellValue( 0, 0, msg );
     m_gridViaSizeList->SetCellValue( 0, 1, msg );
     m_gridTrackWidthList->SetCellValue( 0, 0, msg );
-    m_gridViaSizeList->SetColMinimalWidth( 0, 150 );
-    m_gridViaSizeList->SetColMinimalWidth( 1, 150 );
-    m_gridViaSizeList->AutoSizeColumns( true );
+    m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_DIAMETER, 150 );
+    m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_DRILL, 150 );
+    m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_TYPE, 150 );
+    m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_START, 150 );
+    m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_END, 150 );
+    m_gridViaSizeList->AutoSizeColumns( false );
     m_gridTrackWidthList->SetColMinimalWidth( 0, 150 );
     m_gridTrackWidthList->AutoSizeColumns( true );
     m_gridViaSizeList->SetColMinimalWidth( 1, 150 );
@@ -342,12 +360,30 @@ void DIALOG_DESIGN_RULES::InitDimensionsLists()
     for( unsigned ii = 0; ii < m_ViasDimensionsList.size(); ii++ )
     {
         msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_Diameter, false );
-        m_gridViaSizeList->SetCellValue( ii, 0, msg );
+        m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_DIAMETER, msg );
 
         if( m_ViasDimensionsList[ii].m_Drill > 0 )
         {
             msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_Drill, false );
-            m_gridViaSizeList->SetCellValue( ii, 1, msg );
+            m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_DRILL, msg );            
+        }
+        
+        m_gridViaSizeList->SetCellEditor( ii, GRID_VIA_SIZE_TYPE, new wxGridCellChoiceEditor(m_viaTypeList, false) );
+        
+        if( m_ViasDimensionsList[ii].m_Type != VIA_NOT_DEFINED )
+        {
+            //msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_Type, false );
+            m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_TYPE, m_viaTypeList[ (int)m_ViasDimensionsList[ii].m_Type ] );            
+        }
+        if( m_ViasDimensionsList[ii].m_StartLayer < F_Cu )
+        {
+            msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_StartLayer, false );
+            m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_START, msg );            
+        }
+        if( m_ViasDimensionsList[ii].m_EndLayer > B_Cu )
+        {
+            msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_EndLayer, false );
+            m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_START, msg );            
         }
     }
 }
@@ -809,10 +845,52 @@ void DIALOG_DESIGN_RULES::OnRemoveNetclassClick( wxCommandEvent& event )
 }
 
 /**
+ * Function OnAddViaSizeClick
+ * is called whenever you want to input more vias than lines in the table.
+ */
+void DIALOG_DESIGN_RULES::OnAddViaSizeClick( wxCommandEvent& event )
+{
+    m_gridViaSizeList->AppendRows();
+}
+
+/**
+ * Function OnRemoveViaSizeClick
+ * is called whenever you want to remove the selected line from the table.
+ */ 
+void DIALOG_DESIGN_RULES::OnRemoveViaSizeClick( wxCommandEvent& event )
+{
+    if( m_gridViaSizeList->GetNumberRows() > 0 )
+        m_gridViaSizeList->DeleteRows( m_gridViaSizeList->GetCursorRow() );
+}
+
+/**
+ * Function OnAddTrackSizeClick
+ * is called whenever you want to add more track sizes to the table.
+ */
+void DIALOG_DESIGN_RULES::OnAddTrackSizeClick( wxCommandEvent& event )
+{
+    m_gridTrackWidthList->AppendRows();
+}
+
+/**
+ * Function OnDelTrackSizeClick
+ * is called whneever you want to remove the selected line from the table.
+ */
+void DIALOG_DESIGN_RULES::OnDelTrackSizeClick( wxCommandEvent& event )
+{
+    if( m_gridTrackWidthList->GetNumberRows() > 0 )
+        m_gridTrackWidthList->DeleteRows( m_gridTrackWidthList->GetCursorRow() );
+}
+
+/**
  * Function OnAllowMicroVias
  * is called whenever the AllowMicroVias checkbox is toggled
  */
 void DIALOG_DESIGN_RULES::OnAllowMicroVias( wxCommandEvent& event )
+{
+    OnAllowMicroVias();
+}
+void DIALOG_DESIGN_RULES::OnAllowMicroVias( )
 {
     bool enabled = m_OptAllowMicroVias->GetValue();
     m_SetMicroViasMinSizeCtrl->Enable( enabled );
