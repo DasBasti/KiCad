@@ -3563,7 +3563,7 @@
                                                             <property name="row_label_values">&quot;Via 1&quot; &quot;Via 2&quot; &quot;Via 3&quot; &quot;Via 4&quot; &quot;Via 5&quot; &quot;Via 6&quot; &quot;Via 7&quot; &quot;Via 8&quot; &quot;Via 9&quot; &quot;Via 10&quot; &quot;Via 11&quot; &quot;Via 12&quot;</property>
                                                             <property name="row_label_vert_alignment">wxALIGN_CENTRE</property>
                                                             <property name="row_sizes"></property>
-                                                            <property name="rows">8</property>
+                                                            <property name="rows">0</property>
                                                             <property name="show">1</property>
                                                             <property name="size"></property>
                                                             <property name="subclass"></property>

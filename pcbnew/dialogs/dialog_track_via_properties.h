@@ -43,6 +43,7 @@ public:
 private:
     void onClose( wxCloseEvent& aEvent ) override;
     void onTrackNetclassCheck( wxCommandEvent& aEvent ) override;
+    void OnUserViaDClick( wxCommandEvent& aEvent ) override;
     void onViaNetclassCheck( wxCommandEvent& aEvent ) override;
     void onCancelClick( wxCommandEvent& aEvent ) override;
     void onOkClick( wxCommandEvent& aEvent ) override;
@@ -79,6 +80,7 @@ private:
     WX_UNIT_BINDER m_viaX, m_viaY;
     WX_UNIT_BINDER m_viaDiameter, m_viaDrill;
 
+    BOARD* m_Pcb;
     ///> Flag that determines if the dialog displays track properties.
     bool m_tracks;
 

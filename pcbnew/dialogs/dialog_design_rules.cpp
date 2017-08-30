@@ -37,6 +37,7 @@
 #include <pcbnew.h>
 #include <wxPcbStruct.h>
 #include <class_board_design_settings.h>
+#include <class_pcb_layer_box_selector.h>
 
 #include <pcbnew_id.h>
 #include <class_track.h>
@@ -323,31 +324,39 @@ void DIALOG_DESIGN_RULES::InitGlobalRules()
     InitDimensionsLists();
 }
 
+void addRow2ViaList( wxGrid* aGrid, BOARD* aBoard, wxArrayString aList )
+{
+    wxArrayString layers;
+    aGrid->AppendRows();
+    aGrid->SetCellEditor( aGrid->GetNumberRows()-1, GRID_VIA_SIZE_TYPE, new wxGridCellChoiceEditor(aList) );
+    aGrid->SetCellValue( aGrid->GetNumberRows()-1, GRID_VIA_SIZE_TYPE, "THROUGH");
+
+    LSET show = LSET::AllCuMask() & aBoard->GetEnabledLayers();
+    for( LSEQ seq = show.UIOrder();  seq;  ++seq )
+    {
+        PCB_LAYER_ID   layerid = *seq;
+        layers.Add( aBoard->GetLayerName( ToLAYER_ID( layerid ) ) );
+    }
+
+    aGrid->SetCellEditor( aGrid->GetNumberRows()-1, GRID_VIA_SIZE_START, new wxGridCellChoiceEditor(layers) );
+    aGrid->SetCellValue( aGrid->GetNumberRows()-1, GRID_VIA_SIZE_START, "F.Cu");
+    aGrid->SetCellEditor( aGrid->GetNumberRows()-1, GRID_VIA_SIZE_END, new wxGridCellChoiceEditor(layers) );
+    aGrid->SetCellValue( aGrid->GetNumberRows()-1, GRID_VIA_SIZE_END, "B.Cu");
+}
 
 void DIALOG_DESIGN_RULES::InitDimensionsLists()
 {
     wxString msg;
-
-    // Compute the column widths here, after setting texts
-    msg = wxT("000000.000000"); // This is a very long text to display values.
-                                // Actual values are shorter.
-    m_gridViaSizeList->SetCellValue( 0, 0, msg );
-    m_gridViaSizeList->SetCellValue( 0, 1, msg );
-    m_gridTrackWidthList->SetCellValue( 0, 0, msg );
+    // Set dimensions of grid cells
     m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_DIAMETER, 150 );
     m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_DRILL, 150 );
     m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_TYPE, 150 );
     m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_START, 150 );
     m_gridViaSizeList->SetColMinimalWidth( GRID_VIA_SIZE_END, 150 );
     m_gridViaSizeList->AutoSizeColumns( false );
+
     m_gridTrackWidthList->SetColMinimalWidth( 0, 150 );
     m_gridTrackWidthList->AutoSizeColumns( true );
-    m_gridViaSizeList->SetColMinimalWidth( 1, 150 );
-
-    // Fill cells with actual values:
-    m_gridViaSizeList->SetCellValue( 0, 0, wxEmptyString );
-    m_gridViaSizeList->SetCellValue( 0, 1, wxEmptyString );
-    m_gridTrackWidthList->SetCellValue( 0, 0, wxEmptyString );
 
     // Give a correct size to row labels column
     m_gridViaSizeList->SetRowLabelSize( wxGRID_AUTOSIZE );
@@ -361,6 +370,9 @@ void DIALOG_DESIGN_RULES::InitDimensionsLists()
 
     for( unsigned ii = 0; ii < m_ViasDimensionsList.size(); ii++ )
     {
+
+        addRow2ViaList(m_gridViaSizeList, m_Parent->GetBoard(), m_viaTypeList);
+
         msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_Diameter, false );
         m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_DIAMETER, msg );
 
@@ -369,7 +381,7 @@ void DIALOG_DESIGN_RULES::InitDimensionsLists()
             msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_Drill, false );
             m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_DRILL, msg );            
         }
-        
+
         m_gridViaSizeList->SetCellEditor( ii, GRID_VIA_SIZE_TYPE, new wxGridCellChoiceEditor( m_viaTypeList, false ) );
         if( m_ViasDimensionsList[ii].m_Type != VIA_NOT_DEFINED )
         {
@@ -377,19 +389,15 @@ void DIALOG_DESIGN_RULES::InitDimensionsLists()
             m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_TYPE, m_viaTypeList[ (int)m_ViasDimensionsList[ii].m_Type ] );            
         }
 
-        // Get class of type GridCellEditor of PCB_LAYER_BOX
-        LSET layer = m_Pcb->GetDesignSettings().GetEnabledLayers();
-
-        //m_gridViaSizeList->SetCellEditor( ii, GRID_VIA_SIZE_START, new wxGridCellChoiceEditor() );       
-        if( m_ViasDimensionsList[ii].m_StartLayer < F_Cu )
+        if( m_ViasDimensionsList[ii].m_StartLayer != F_Cu )
         {
-            msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_StartLayer, false );
+            msg = m_Pcb->GetLayerName( m_ViasDimensionsList[ii].m_StartLayer );
             m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_START, msg );            
         }
-        if( m_ViasDimensionsList[ii].m_EndLayer > B_Cu )
+        if( m_ViasDimensionsList[ii].m_EndLayer != B_Cu )
         {
-            msg = StringFromValue( g_UserUnit, m_ViasDimensionsList[ii].m_EndLayer, false );
-            m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_START, msg );            
+            msg = m_Pcb->GetLayerName( m_ViasDimensionsList[ii].m_EndLayer );
+            m_gridViaSizeList->SetCellValue( ii, GRID_VIA_SIZE_END, msg );            
         }
     }
 }
@@ -650,14 +658,12 @@ void DIALOG_DESIGN_RULES::CopyGlobalRulesToBoard()
     m_BrdSettings->m_TrackMinWidth = ValueFromTextCtrl( *m_SetTrackMinWidthCtrl );
 }
 
-
 void DIALOG_DESIGN_RULES::CopyDimensionsListsToBoard()
 {
     wxString msg;
 
     // Reinitialize m_TrackWidthList
     m_TracksWidthList.clear();
-
     for( int row = 0; row < m_gridTrackWidthList->GetNumberRows();  ++row )
     {
         msg = m_gridTrackWidthList->GetCellValue( row, 0 );
@@ -677,6 +683,7 @@ void DIALOG_DESIGN_RULES::CopyDimensionsListsToBoard()
 
     for( int row = 0; row < m_gridViaSizeList->GetNumberRows();  ++row )
     {
+
         msg = m_gridViaSizeList->GetCellValue( row, 0 );
 
         if( msg.IsEmpty() )
@@ -692,7 +699,32 @@ void DIALOG_DESIGN_RULES::CopyDimensionsListsToBoard()
             value = ValueFromString( g_UserUnit, msg );
             via_dim.m_Drill = value;
         }
-//TODO
+
+        msg = m_gridViaSizeList->GetCellValue( row, GRID_VIA_SIZE_TYPE );
+
+        if( !msg.IsEmpty() )
+        {
+            for( int type = 0; type < m_viaTypeList.Count(); ++type )
+            {
+                if( m_viaTypeList[type] == msg )
+                    via_dim.m_Type = (VIATYPE_T)(type);
+            }
+        }
+
+        msg = m_gridViaSizeList->GetCellValue( row, GRID_VIA_SIZE_START );
+
+        if( !msg.IsEmpty() )
+        {
+            via_dim.m_StartLayer = m_Parent->GetBoard()->GetLayerID( msg );
+        }
+
+        msg = m_gridViaSizeList->GetCellValue( row, GRID_VIA_SIZE_END );
+
+        if( !msg.IsEmpty() )
+        {
+            via_dim.m_EndLayer = m_Parent->GetBoard()->GetLayerID( msg );
+        }
+
         m_ViasDimensionsList.push_back( via_dim );
     }
 
@@ -863,8 +895,10 @@ void DIALOG_DESIGN_RULES::CheckAllowMicroVias()
  */
 void DIALOG_DESIGN_RULES::OnAddViaSizeClick( wxCommandEvent& event )
 {
-    m_gridViaSizeList->AppendRows();
+    addRow2ViaList(m_gridViaSizeList, m_Parent->GetBoard(), m_viaTypeList);
 }
+
+
 
 /**
  * Function OnRemoveViaSizeClick
@@ -1211,22 +1245,35 @@ bool DIALOG_DESIGN_RULES::TestDataValidity( wxString* aErrorMsg )
     // Test custom vias
     for( int row = 0; row < m_gridViaSizeList->GetNumberRows();  ++row )
     {
-        wxString tvalue = m_gridViaSizeList->GetCellValue( row, 0 );
+        wxString tvalue = m_gridViaSizeList->GetCellValue( row, GRID_VIA_SIZE_DIAMETER );
 
         if( tvalue.IsEmpty() )
             continue;
 
         int viadia = ValueFromString( g_UserUnit, tvalue );
 
-        if( viadia < minViaDia )
+        if( m_gridViaSizeList->GetCellValue( row, GRID_VIA_SIZE_TYPE ) == m_viaTypeList[VIA_MICROVIA] )
         {
-            result = false;
-            msg.Printf( _( "<b>Extra Via %d Size</b> %s &lt; <b>Min Via Size</b><br>" ),
-                        row + 1, GetChars( tvalue ) );
-            errorMsg += msg;
+            if( viadia < minUViaDia )
+            {
+                result = false;
+                msg.Printf( _( "<b>Extra Via %d Size</b> %s &lt; <b>Min uVia Size</b><br>" ),
+                            row + 1, GetChars( tvalue ) );
+                errorMsg += msg;
+            }
+        }
+        else
+        {
+            if( viadia < minViaDia )
+            {
+                result = false;
+                msg.Printf( _( "<b>Extra Via %d Size</b> %s &lt; <b>Min Via Size</b><br>" ),
+                            row + 1, GetChars( tvalue ) );
+                errorMsg += msg;
+            }
         }
 
-        wxString drlvalue = m_gridViaSizeList->GetCellValue( row, 1 );
+        wxString drlvalue = m_gridViaSizeList->GetCellValue( row, GRID_VIA_SIZE_DRILL );
 
         if( drlvalue.IsEmpty() )
         {
@@ -1238,13 +1285,27 @@ bool DIALOG_DESIGN_RULES::TestDataValidity( wxString* aErrorMsg )
 
         int viadrill = ValueFromString( g_UserUnit, drlvalue );
 
-        if( viadrill < minViaDrill )
+        if( m_gridViaSizeList->GetCellValue( row, GRID_VIA_SIZE_TYPE ) == m_viaTypeList[VIA_MICROVIA] )
         {
-            result = false;
-            msg.Printf( _( "<b>Extra Via %d Drill</b> %s &lt; <b>Min Via Drill %s</b><br>" ),
-                        row + 1, GetChars( drlvalue ),
-                        GetChars( m_SetViasMinDrillCtrl->GetValue() ) );
-            errorMsg += msg;
+            if( viadrill < minUViaDrill )
+            {
+                result = false;
+                msg.Printf( _( "<b>Extra Via %d Drill</b> %s &lt; <b>Min uVia Drill %s</b><br>" ),
+                            row + 1, GetChars( drlvalue ),
+                            GetChars( m_SetViasMinDrillCtrl->GetValue() ) );
+                errorMsg += msg;
+            }
+        }
+        else
+        {
+            if( viadrill < minViaDrill )
+            {
+                result = false;
+                msg.Printf( _( "<b>Extra Via %d Drill</b> %s &lt; <b>Min Via Drill %s</b><br>" ),
+                            row + 1, GetChars( drlvalue ),
+                            GetChars( m_SetViasMinDrillCtrl->GetValue() ) );
+                errorMsg += msg;
+            }
         }
 
         if( viadia <= viadrill )
@@ -1263,7 +1324,6 @@ bool DIALOG_DESIGN_RULES::TestDataValidity( wxString* aErrorMsg )
                         row + 1, GetChars( tvalue ) );
             errorMsg += msg;
         }
-        //TODO
     }
 
     if( !result && aErrorMsg )

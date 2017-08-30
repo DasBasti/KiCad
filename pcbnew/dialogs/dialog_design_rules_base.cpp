@@ -291,7 +291,7 @@ DIALOG_DESIGN_RULES_BASE::DIALOG_DESIGN_RULES_BASE( wxWindow* parent, wxWindowID
 	m_gridViaSizeList = new wxGrid( sViaSizeBox->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	
 	// Grid
-	m_gridViaSizeList->CreateGrid( 1, 5 );
+	m_gridViaSizeList->CreateGrid( 0, 5 );
 	m_gridViaSizeList->EnableEditing( true );
 	m_gridViaSizeList->EnableGridLines( true );
 	m_gridViaSizeList->EnableDragGridSize( false );

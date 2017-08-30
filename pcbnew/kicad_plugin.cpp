@@ -648,10 +648,14 @@ void PCB_IO::format( BOARD* aBoard, int aNestLevel ) const
     // Save custom vias diameters list (the first is not saved here: this is
     // the netclass value
     for( unsigned ii = 1; ii < dsnSettings.m_ViasDimensionsList.size(); ii++ )
-        m_out->Print( aNestLevel+1, "(user_via %s %s)\n",
+    {
+        m_out->Print( aNestLevel+1, "(user_via %s %s %d %d %d)\n",
                       FMTIU( dsnSettings.m_ViasDimensionsList[ii].m_Diameter ).c_str(),
-                      FMTIU( dsnSettings.m_ViasDimensionsList[ii].m_Drill ).c_str() );
-
+                      FMTIU( dsnSettings.m_ViasDimensionsList[ii].m_Drill ).c_str(),
+                      dsnSettings.m_ViasDimensionsList[ii].m_Type,
+                      dsnSettings.m_ViasDimensionsList[ii].m_StartLayer,
+                      dsnSettings.m_ViasDimensionsList[ii].m_EndLayer );
+    }
     // for old versions compatibility:
     if( dsnSettings.m_BlindBuriedViaAllowed )
         m_out->Print( aNestLevel+1, "(blind_buried_vias_allowed yes)\n" );

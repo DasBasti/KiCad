@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Aug 20 2017)
+// C++ code generated with wxFormBuilder (version Aug 10 2017)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -29,6 +29,7 @@ class WIDGET_NET_SELECTOR;
 #include <wx/statbox.h>
 #include <wx/textctrl.h>
 #include <wx/bmpcbox.h>
+#include <wx/listbox.h>
 #include <wx/choice.h>
 #include <wx/button.h>
 #include <wx/dialog.h>
@@ -78,6 +79,8 @@ class DIALOG_TRACK_VIA_PROPERTIES_BASE : public DIALOG_SHIM
 		wxTextCtrl* m_ViaYCtrl;
 		wxStaticText* m_ViaYUnit;
 		wxStaticLine* m_viaStaticLine;
+		wxStaticText* m_UserViaListBoxLabel;
+		wxListBox* m_UserViaListBox;
 		wxStaticText* m_ViaDiameterLabel;
 		wxTextCtrl* m_ViaDiameterCtrl;
 		wxStaticText* m_ViaDiameterUnit;
@@ -99,6 +102,7 @@ class DIALOG_TRACK_VIA_PROPERTIES_BASE : public DIALOG_SHIM
 		virtual void onClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void OnInitDlg( wxInitDialogEvent& event ) { event.Skip(); }
 		virtual void onTrackNetclassCheck( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnUserViaDClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onViaNetclassCheck( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onCancelClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onOkClick( wxCommandEvent& event ) { event.Skip(); }
@@ -106,7 +110,7 @@ class DIALOG_TRACK_VIA_PROPERTIES_BASE : public DIALOG_SHIM
 	
 	public:
 		
-		DIALOG_TRACK_VIA_PROPERTIES_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Track & Via Properties"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 573,437 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSYSTEM_MENU ); 
+		DIALOG_TRACK_VIA_PROPERTIES_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Track & Via Properties"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 573,556 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSYSTEM_MENU ); 
 		~DIALOG_TRACK_VIA_PROPERTIES_BASE();
 	
 };

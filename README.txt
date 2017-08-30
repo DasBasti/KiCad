@@ -1,5 +1,9 @@
-KiCad README
+KiCad extended vias version README
 ============
+This version of KiCad adds a lot more flexibility to vias. It gives a constraint 
+management for vias in the design rules dialog. It lets you change via types
+on the fly during placement in pcbnew frame.
+
 For specific documentation like Compiling, GUI translation, old
 changelogs see the Documentation subfolder.
 

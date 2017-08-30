@@ -63,7 +63,9 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
 
     printf("Create!\n");
 
-    m_NetComboBox->SetBoard( aParent->GetBoard() );
+    m_Pcb = aParent->GetBoard();
+    
+    m_NetComboBox->SetBoard( m_Pcb );
     m_NetComboBox->Enable( true );
 
     bool hasLocked = false;
@@ -172,6 +174,54 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
                 else
                     hasUnlocked = true;
 
+                // load up via selector with list of user vias
+                wxArrayString m_ViaTypeChoiceChoices;
+                std::vector<VIA_DIMENSION> ViasDimensionsList = m_Pcb->GetDesignSettings().m_ViasDimensionsList;
+                int selection;
+                for( int ii = 0; ii < ViasDimensionsList.size(); ii++ )
+                {
+                    wxString msg;
+
+                    switch( ViasDimensionsList[ii].m_Type )
+                    {
+                        case VIA_BLIND_BURIED:
+                            msg += "[B] ";
+                            break;
+                        case VIA_MICROVIA:
+                            msg += "[M] ";
+                            break;
+                        case VIA_THROUGH:
+                            msg += "[T] ";
+                            break;
+                        default:
+                            msg += "[?] ";
+                            break;
+                    }
+
+                    msg += StringFromValue( g_UserUnit, ViasDimensionsList[ii].m_Diameter, false );
+                    msg += "/";
+                    msg += StringFromValue( g_UserUnit, ViasDimensionsList[ii].m_Drill, false );
+                    msg += " ";
+
+                    msg += m_Pcb->GetLayerName( ViasDimensionsList[ii].m_StartLayer );
+                    msg += " -> ";
+                    msg += m_Pcb->GetLayerName( ViasDimensionsList[ii].m_EndLayer );
+
+                    m_ViaTypeChoiceChoices.Add( msg );
+
+                    if( ViasDimensionsList[ii].m_Diameter == v->GetWidth()
+                     && ViasDimensionsList[ii].m_Drill == v->GetDrill()
+                     && ViasDimensionsList[ii].m_Type == v->GetViaType() )
+                        selection = ii;
+                }
+
+                /*m_ViaTypeChoice->Clear();
+                m_ViaTypeChoice->Append(m_ViaTypeChoiceChoices);
+                m_ViaTypeChoice->Enable();
+                m_ViaTypeChoice->SetSelection(selection);
+                */
+                m_UserViaListBox->Append( m_ViaTypeChoiceChoices );
+                m_UserViaListBox->SetSelection( selection );
                 break;
             }
 
@@ -405,6 +455,12 @@ void DIALOG_TRACK_VIA_PROPERTIES::onTrackNetclassCheck( wxCommandEvent& aEvent )
     m_TrackWidthUnit->Enable( !enableNC );
 }
 
+void DIALOG_TRACK_VIA_PROPERTIES::OnUserViaDClick( wxCommandEvent& aEvent )
+{
+        m_viaDiameter.SetValue(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_Diameter);
+        m_viaDrill.SetValue(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_Drill);
+        m_ViaTypeChoice->SetSelection(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_Type);
+}
 
 void DIALOG_TRACK_VIA_PROPERTIES::onViaNetclassCheck( wxCommandEvent& aEvent )
 {
