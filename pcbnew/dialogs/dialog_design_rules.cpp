@@ -898,8 +898,10 @@ void DIALOG_DESIGN_RULES::CheckAllowMicroVias()
  */
 void DIALOG_DESIGN_RULES::OnAddViaSizeClick( wxCommandEvent& event )
 {
-    m_gridViaSizeList->AppendRows();
+    addRow2ViaList(m_gridViaSizeList, m_Parent->GetBoard(), m_viaTypeList);
 }
+
+
 
 /**
  * Function OnRemoveViaSizeClick
