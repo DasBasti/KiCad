@@ -280,6 +280,14 @@ int BOARD_DESIGN_SETTINGS::GetCurrentMicroViaDrill()
 }
 
 
+PCB_LAYER_ID BOARD_DESIGN_SETTINGS::GetCurrentMicroViaLayer(bool aReturnStartLayer)
+{
+    if( aReturnStartLayer )
+        return m_customViaSize.m_StartLayer;
+    return m_customViaSize.m_EndLayer;
+}
+
+
 void BOARD_DESIGN_SETTINGS::SetViaSizeIndex( unsigned aIndex )
 {
     if( aIndex >= m_ViasDimensionsList.size() )
@@ -303,6 +311,16 @@ int BOARD_DESIGN_SETTINGS::GetCurrentViaDrill() const
     return drill > 0 ? drill : -1;
 }
 
+VIATYPE_T BOARD_DESIGN_SETTINGS::GetCurrentViaType() const
+{
+    VIATYPE_T type = VIA_THROUGH; // Usually we want through hole vias
+    if( m_useCustomTrackVia )
+        type = m_customViaSize.m_Type;
+    else
+        type = m_ViasDimensionsList[m_viaSizeIndex].m_Type;
+    
+    return type;
+}
 
 void BOARD_DESIGN_SETTINGS::SetTrackWidthIndex( unsigned aIndex )
 {

@@ -288,6 +288,13 @@ public:
     int GetCurrentMicroViaDrill();
 
     /**
+     * Function GetCurrentMicroViaLayer
+     * @param aReturnStartLayer = true -> StartLayer, false -> aEndLayer
+     * @return the current micro via layer
+     */
+    PCB_LAYER_ID GetCurrentMicroViaLayer(bool aReturnStartLayer);
+
+    /**
      * Function GetTrackWidthIndex
      * @return the current track width list index.
      */
@@ -434,6 +441,14 @@ public:
     {
         return m_useCustomTrackVia;
     }
+
+    /**
+     * Function GetCurrentViaType
+     * @return the current via type, according to the selected options
+     * ( using the default netclass value or a preset/custom value )
+     * the default netclass is always in m_TrackWidthList[0]
+     */
+    VIATYPE_T GetCurrentViaType() const;
 
     /**
      * Function GetVisibleLayers

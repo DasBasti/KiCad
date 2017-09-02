@@ -548,11 +548,28 @@ int ROUTER_TOOL::onViaCommand( const TOOL_EVENT& aEvent )
         }
 
         // Can only place microvias if we're on an outer layer, or directly adjacent to one
-        if( ( viaType == VIA_MICROVIA ) && ( currentLayer > In1_Cu ) && ( currentLayer < layerCount - 2 ) )
+        // This is not true. So we can not over simplyfy this.
+        // Wee need to trust the user to enter sensible data to user vias.
+        if( viaType == VIA_MICROVIA )
         {
-            DisplayError( frame(), _( "Microvias can be placed only between the outer layers " \
-                                      "(F.Cu/B.Cu) and the ones directly adjacent to them." ) );
-            return false;
+            std::vector<VIA_DIMENSION> dimensionList = board()->GetDesignSettings().m_ViasDimensionsList;
+            bool found;
+            for(uint ii=0; ii < dimensionList.size(); ++ii )
+            {
+                if( dimensionList[ii].m_Type == VIA_MICROVIA && ( dimensionList[ii].m_EndLayer == currentLayer || dimensionList[ii].m_StartLayer == currentLayer ) )
+                {
+                    found = true; // we found the layer to be suitable for micro vias
+                    sizes.AddLayerPair( dimensionList[ii].m_StartLayer, dimensionList[ii].m_EndLayer );
+                    break;
+                }
+            }
+            if( !found )
+            {
+
+                DisplayError( frame(), _( "Microvias can be placed only between the layers " \
+                                      "defined in user vias list." ) );
+                return false;
+            }
         }
     }
 
@@ -588,7 +605,8 @@ int ROUTER_TOOL::onViaCommand( const TOOL_EVENT& aEvent )
 
         wxASSERT_MSG( !selectLayer, "Unexpected select layer for microvia (microvia layers are implicit)" );
 
-        if( currentLayer == F_Cu || currentLayer == In1_Cu )
+        
+/*        if( currentLayer == F_Cu || currentLayer == In1_Cu )
         {
             // front-side microvia
             sizes.AddLayerPair( F_Cu, In1_Cu );
@@ -602,7 +620,7 @@ int ROUTER_TOOL::onViaCommand( const TOOL_EVENT& aEvent )
         {
             wxASSERT_MSG( false, "Invalid layer pair for microvia (must be on or adjacent to an outer layer)" );
         }
-        break;
+*/        break;
 
     case VIA_BLIND_BURIED:
         sizes.SetViaDiameter( bds.GetCurrentViaSize() );

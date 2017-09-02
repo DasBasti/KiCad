@@ -122,6 +122,7 @@ void SIZES_SETTINGS::Init( BOARD* aBoard, ITEM* aStartItem, int aNet )
     {
         m_viaDiameter = bds.GetCurrentViaSize();
         m_viaDrill = bds.GetCurrentViaDrill();
+        m_viaType = bds.GetCurrentViaType();
     }
 
     m_layerPairs.clear();
