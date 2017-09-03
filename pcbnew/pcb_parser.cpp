@@ -1074,17 +1074,18 @@ void PCB_PARSER::parseSetup()
             {   /* TODO add parse function for type and cu layer */
                 int viaSize = parseBoardUnits( "user via size" );
                 int viaDrill = parseBoardUnits( "user via drill" );
-                try 
+                if( m_requiredVersion >= 20170901 ) // SEXPR_BOARD_FILE_VERSION from when the new fileds where added
                 {
                     VIATYPE_T viaType = (VIATYPE_T)parseInt( "user via type" );
                     PCB_LAYER_ID viaStartLayer = (PCB_LAYER_ID)parseInt( "user via start" );
                     PCB_LAYER_ID viaEndLayer = (PCB_LAYER_ID)parseInt( "user via end" );
                     designSettings.m_ViasDimensionsList.push_back( VIA_DIMENSION( viaSize, viaDrill, viaType, viaStartLayer, viaEndLayer ) );
                 }
-                catch(...)
+                else
                 {
                     designSettings.m_ViasDimensionsList.push_back( VIA_DIMENSION( viaSize, viaDrill, VIA_NOT_DEFINED, F_Cu, B_Cu ) );
                 }
+
                 NeedRIGHT();
             }
             break;
