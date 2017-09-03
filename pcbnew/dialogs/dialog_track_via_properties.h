@@ -43,12 +43,14 @@ public:
 private:
     void onClose( wxCloseEvent& aEvent ) override;
     void onTrackNetclassCheck( wxCommandEvent& aEvent ) override;
-    void OnUserViaDClick( wxCommandEvent& aEvent ) override;
+    void onUserViaDClick( wxCommandEvent& aEvent ) override;
+    void onViaChangeProperties( wxCommandEvent& aEvent ) override;
+    void onViaEndLayerCombobox( wxCommandEvent& aEvent );
     void onViaNetclassCheck( wxCommandEvent& aEvent ) override;
     void onCancelClick( wxCommandEvent& aEvent ) override;
     void onOkClick( wxCommandEvent& aEvent ) override;
 
-    void OnInitDlg( wxInitDialogEvent& event ) override
+    void onInitDlg( wxInitDialogEvent& aEvent ) override
     {
         // Call the default wxDialog handler of a wxInitDialogEvent
         TransferDataToWindow();

@@ -32,6 +32,23 @@
 #include <widgets/widget_net_selector.h>
 #include <board_commit.h>
 
+
+int findUserViaStyle( std::vector<VIA_DIMENSION> aVdl, int aDiameter, int aDrill, VIATYPE_T aType, PCB_LAYER_ID aStartLayer, PCB_LAYER_ID aEndLayer )
+{
+    for( uint ii=0; ii < aVdl.size(); ++ii )
+    {
+        if( aVdl[ii].m_Diameter == aDiameter
+         && aVdl[ii].m_Drill == aDrill
+         && aVdl[ii].m_Type == aType
+         && aVdl[ii].m_StartLayer == aStartLayer
+         && aVdl[ii].m_EndLayer == aEndLayer )
+            return ii;
+    }
+
+    return -1;
+}
+
+
 DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParent, const SELECTION& aItems ) :
     DIALOG_TRACK_VIA_PROPERTIES_BASE( aParent ), m_items( aItems ),
     m_trackStartX( aParent, m_TrackStartXCtrl, m_TrackStartXUnit ),
@@ -221,10 +238,11 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
                     msg += StringFromValue( g_UserUnit, ViasDimensionsList[ii].m_Diameter, false );
                     msg += "/";
                     msg += StringFromValue( g_UserUnit, ViasDimensionsList[ii].m_Drill, false );
-                    msg += " ";
+                    msg += ReturnUnitSymbol( g_UserUnit , " %s");
+                    msg += "\t";
 
                     msg += m_Pcb->GetLayerName( ViasDimensionsList[ii].m_StartLayer );
-                    msg += " -> ";
+                    msg += " - ";
                     msg += m_Pcb->GetLayerName( ViasDimensionsList[ii].m_EndLayer );
 
                     m_ViaTypeChoiceChoices.Add( msg );
@@ -471,9 +489,9 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
 
                     PCB_LAYER_ID startLayer, endLayer;
                     v->LayerPair( &startLayer, &endLayer );
-                    if( m_ViaStartLayer->GetSelection() != (int)startLayer 
-                     || m_ViaEndLayer->GetSelection() != (int)endLayer )
-                        v->SetLayerPair( (PCB_LAYER_ID)m_ViaStartLayer->GetSelection(), (PCB_LAYER_ID)m_ViaEndLayer->GetSelection() );
+                    if( ToLAYER_ID( m_ViaStartLayer->GetLayerSelection() ) != startLayer 
+                     || ToLAYER_ID( m_ViaEndLayer->GetLayerSelection() ) != endLayer )
+                        v->SetLayerPair( ToLAYER_ID( m_ViaStartLayer->GetLayerSelection() ), ToLAYER_ID( m_ViaEndLayer->GetLayerSelection() ) );
 
                 }
 
@@ -483,14 +501,6 @@ bool DIALOG_TRACK_VIA_PROPERTIES::Apply( COMMIT& aCommit )
                     v->SetNetCode( m_NetComboBox->GetSelectedNet() );
                 }
 
-                LAYER_NUM startLayer = m_ViaStartLayer->GetLayerSelection();
-                LAYER_NUM endLayer = m_ViaEndLayer->GetLayerSelection();
-
-                if( startLayer != UNDEFINED_LAYER && endLayer != UNDEFINED_LAYER)
-                    v->SetLayerPair( (PCB_LAYER_ID)startLayer, (PCB_LAYER_ID)endLayer );
-
-                if( m_ViaTypeChoice->GetSelection() != VIA_NOT_DEFINED )
-                    v->SetViaType( (VIATYPE_T)m_ViaTypeChoice->GetSelection() );
 
                 if( changeLock )
                     v->SetLocked( setLock );
@@ -523,13 +533,13 @@ void DIALOG_TRACK_VIA_PROPERTIES::onTrackNetclassCheck( wxCommandEvent& aEvent )
     m_TrackWidthUnit->Enable( !enableNC );
 }
 
-void DIALOG_TRACK_VIA_PROPERTIES::OnUserViaDClick( wxCommandEvent& aEvent )
+void DIALOG_TRACK_VIA_PROPERTIES::onUserViaDClick( wxCommandEvent& aEvent )
 {
         m_viaDiameter.SetValue(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_Diameter);
         m_viaDrill.SetValue(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_Drill);
         m_ViaTypeChoice->SetSelection(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_Type);
-        m_ViaStartLayer->SetSelection(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_StartLayer);
-        m_ViaEndLayer->SetSelection(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_EndLayer);
+        m_ViaStartLayer->SetLayerSelection(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_StartLayer);
+        m_ViaEndLayer->SetLayerSelection(m_Pcb->GetDesignSettings().m_ViasDimensionsList[m_UserViaListBox->GetSelection()].m_EndLayer);
 }
 
 void DIALOG_TRACK_VIA_PROPERTIES::onViaNetclassCheck( wxCommandEvent& aEvent )
@@ -554,8 +564,63 @@ void DIALOG_TRACK_VIA_PROPERTIES::onCancelClick( wxCommandEvent& aEvent )
 
 void DIALOG_TRACK_VIA_PROPERTIES::onOkClick( wxCommandEvent& aEvent )
 {
+    std::vector <VIA_DIMENSION> viasDimensionsList = m_Pcb->GetDesignSettings().m_ViasDimensionsList;
+    if( findUserViaStyle( viasDimensionsList,
+                                     m_viaDiameter.GetValue(),
+                                     m_viaDrill.GetValue(),
+                                     (VIATYPE_T)m_ViaTypeChoice->GetSelection(),
+                                     ToLAYER_ID( m_ViaStartLayer->GetLayerSelection() ),
+                                     ToLAYER_ID( m_ViaEndLayer->GetLayerSelection() ) ) == wxNOT_FOUND )
+    {
+        // add via settings to user via list
+        if ( m_userViaCheckBox->GetValue() )
+        {
+            VIA_DIMENSION via;
+            via.m_Diameter = m_viaDiameter.GetValue();
+            via.m_Drill = m_viaDrill.GetValue();
+            via.m_Type = (VIATYPE_T)m_ViaTypeChoice->GetSelection();
+            via.m_StartLayer = ToLAYER_ID( m_ViaStartLayer->GetLayerSelection() );
+            via.m_EndLayer = ToLAYER_ID( m_ViaEndLayer->GetLayerSelection() );
+            viasDimensionsList.push_back(via);
+            // Sort new list by by increasing value
+            sort( viasDimensionsList.begin(), viasDimensionsList.end() );
+            // Reinitialize m_ViaSizeList
+            std::vector<VIA_DIMENSION>* vialist = &m_Pcb->GetDesignSettings().m_ViasDimensionsList;
+            vialist->erase( vialist->begin() + 1, vialist->end() );
+            vialist->insert( vialist->end(), viasDimensionsList.begin(), viasDimensionsList.end() );
+
+        }
+    }
+
     if( check() )
         EndModal( 1 );
+}
+
+
+void DIALOG_TRACK_VIA_PROPERTIES::onViaChangeProperties( wxCommandEvent& aEvent )
+{
+    m_UserViaListBox->SetSelection( findUserViaStyle( m_Pcb->GetDesignSettings().m_ViasDimensionsList,
+                                         m_viaDiameter.GetValue(),
+                                         m_viaDrill.GetValue(),
+                                         (VIATYPE_T)m_ViaTypeChoice->GetSelection(),
+                                         ToLAYER_ID( m_ViaStartLayer->GetLayerSelection() ),
+                                         ToLAYER_ID( m_ViaEndLayer->GetLayerSelection() ) ) );
+}
+
+
+void DIALOG_TRACK_VIA_PROPERTIES::onViaEndLayerCombobox( wxCommandEvent& aEvent )
+{
+/*    if( findUserViaStyle( m_Pcb->GetDesignSettings().m_ViasDimensionsList,
+                          m_viaDiameter.GetValue(),
+                          m_viaDrill.GetValue(),
+                          (VIATYPE_T)m_ViaTypeChoice->GetSelection(),
+                          ToLAYER_ID( m_ViaStartLayer->GetLayerSelection() ),
+                          ToLAYER_ID( m_ViaEndLayer->GetLayerSelection() ) )
+        =! -1)
+    {
+        DisplayError( GetParent(), _( "Invalid via selected. Add via configurations in Design Rules dialog." ) );
+    }
+    */
 }
 
 
@@ -591,6 +656,17 @@ bool DIALOG_TRACK_VIA_PROPERTIES::check() const
         {
             DisplayError( GetParent(), _( "Via drill size has to be smaller than via diameter" ) );
             m_ViaDrillCtrl->SetFocus();
+            return false;
+        }
+        if( findUserViaStyle( m_Pcb->GetDesignSettings().m_ViasDimensionsList,
+                                         m_viaDiameter.GetValue(),
+                                         m_viaDrill.GetValue(),
+                                         (VIATYPE_T)m_ViaTypeChoice->GetSelection(),
+                                         ToLAYER_ID( m_ViaStartLayer->GetLayerSelection() ),
+                                         ToLAYER_ID( m_ViaEndLayer->GetLayerSelection() ) ) == wxNOT_FOUND )
+        {
+            DisplayError( GetParent(), _( "Via settings are not found in user via classes.\n\r" \
+                                           "Select Add Via to add user via list." ) );
             return false;
         }
     }

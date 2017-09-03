@@ -93,6 +93,7 @@ class DIALOG_TRACK_VIA_PROPERTIES_BASE : public DIALOG_SHIM
 		PCB_LAYER_BOX_SELECTOR* m_ViaStartLayer;
 		wxStaticText* m_ViaEndLayerLabel1;
 		PCB_LAYER_BOX_SELECTOR* m_ViaEndLayer;
+		wxCheckBox* m_userViaCheckBox;
 		wxCheckBox* m_viaNetclass;
 		wxStdDialogButtonSizer* m_StdButtons;
 		wxButton* m_StdButtonsOK;
@@ -100,9 +101,10 @@ class DIALOG_TRACK_VIA_PROPERTIES_BASE : public DIALOG_SHIM
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onClose( wxCloseEvent& event ) { event.Skip(); }
-		virtual void OnInitDlg( wxInitDialogEvent& event ) { event.Skip(); }
+		virtual void onInitDlg( wxInitDialogEvent& event ) { event.Skip(); }
 		virtual void onTrackNetclassCheck( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnUserViaDClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onUserViaDClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onViaChangeProperties( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onViaNetclassCheck( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onCancelClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onOkClick( wxCommandEvent& event ) { event.Skip(); }
@@ -110,7 +112,7 @@ class DIALOG_TRACK_VIA_PROPERTIES_BASE : public DIALOG_SHIM
 	
 	public:
 		
-		DIALOG_TRACK_VIA_PROPERTIES_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Track & Via Properties"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 573,556 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSYSTEM_MENU ); 
+		DIALOG_TRACK_VIA_PROPERTIES_BASE( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Track & Via Properties"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSYSTEM_MENU ); 
 		~DIALOG_TRACK_VIA_PROPERTIES_BASE();
 	
 };

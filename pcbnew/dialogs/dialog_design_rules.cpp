@@ -707,7 +707,7 @@ void DIALOG_DESIGN_RULES::CopyDimensionsListsToBoard()
 
         if( !msg.IsEmpty() )
         {
-            for( int type = 0; type < m_viaTypeList.Count(); ++type )
+            for( uint type = 0; type < m_viaTypeList.Count(); ++type )
             {
                 if( m_viaTypeList[type] == msg )
                     via_dim.m_Type = (VIATYPE_T)(type);
