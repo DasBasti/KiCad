@@ -165,6 +165,7 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
             case PCB_VIA_T:
             {
                 const VIA* v = static_cast<const VIA*>( item );
+                uint selection;
 
                 if( !m_vias )       // first via in the list
                 {
@@ -179,6 +180,57 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
                     viaEndLayer = layerEnd;
                     viaType = v->GetViaType();
                     m_vias = true;
+                    // load up via selector with list of user vias
+                    wxArrayString m_ViaTypeChoiceChoices;
+                    std::vector<VIA_DIMENSION> ViasDimensionsList = m_Pcb->GetDesignSettings().m_ViasDimensionsList;
+                    for( uint ii = 0; ii < ViasDimensionsList.size(); ii++ )
+                    {
+                        wxString msg;
+
+                        switch( ViasDimensionsList[ii].m_Type )
+                        {
+                            case VIA_BLIND_BURIED:
+                                msg += "[B] ";
+                                break;
+                            case VIA_MICROVIA:
+                                msg += "[M] ";
+                                break;
+                            case VIA_THROUGH:
+                                msg += "[T] ";
+                                break;
+                            default:
+                                msg += "[?] ";
+                                break;
+                        }
+
+                        msg += StringFromValue( g_UserUnit, ViasDimensionsList[ii].m_Diameter, false );
+                        msg += "/";
+                        msg += StringFromValue( g_UserUnit, ViasDimensionsList[ii].m_Drill, false );
+                        msg += ReturnUnitSymbol( g_UserUnit , " %s");
+                        msg += "\t";
+
+                        msg += m_Pcb->GetLayerName( ViasDimensionsList[ii].m_StartLayer );
+                        msg += " - ";
+                        msg += m_Pcb->GetLayerName( ViasDimensionsList[ii].m_EndLayer );
+
+                        m_ViaTypeChoiceChoices.Add( msg );
+
+                        PCB_LAYER_ID startLayer, endLayer;
+                        v->LayerPair( &startLayer, &endLayer );
+                        if( ViasDimensionsList[ii].m_Diameter == v->GetWidth()
+                          && ViasDimensionsList[ii].m_Drill == v->GetDrill()
+                          && ViasDimensionsList[ii].m_Type == v->GetViaType()
+                          && ViasDimensionsList[ii].m_StartLayer == startLayer
+                          && ViasDimensionsList[ii].m_EndLayer == endLayer )
+                            selection = ii;
+                    }
+
+                    /*m_ViaTypeChoice->Clear();
+                    m_ViaTypeChoice->Append(m_ViaTypeChoiceChoices);
+                    m_ViaTypeChoice->Enable();
+                    m_ViaTypeChoice->SetSelection(selection);
+                    */
+                    m_UserViaListBox->Append( m_ViaTypeChoiceChoices );
                 }
                 else        // check if values are the same for every selected via
                 {
@@ -211,59 +263,6 @@ DIALOG_TRACK_VIA_PROPERTIES::DIALOG_TRACK_VIA_PROPERTIES( PCB_BASE_FRAME* aParen
                 else
                     hasUnlocked = true;
 
-                // load up via selector with list of user vias
-                wxArrayString m_ViaTypeChoiceChoices;
-                std::vector<VIA_DIMENSION> ViasDimensionsList = m_Pcb->GetDesignSettings().m_ViasDimensionsList;
-                uint selection;
-                for( uint ii = 0; ii < ViasDimensionsList.size(); ii++ )
-                {
-                    wxString msg;
-
-                    switch( ViasDimensionsList[ii].m_Type )
-                    {
-                        case VIA_BLIND_BURIED:
-                            msg += "[B] ";
-                            break;
-                        case VIA_MICROVIA:
-                            msg += "[M] ";
-                            break;
-                        case VIA_THROUGH:
-                            msg += "[T] ";
-                            break;
-                        default:
-                            msg += "[?] ";
-                            break;
-                    }
-
-                    msg += StringFromValue( g_UserUnit, ViasDimensionsList[ii].m_Diameter, false );
-                    msg += "/";
-                    msg += StringFromValue( g_UserUnit, ViasDimensionsList[ii].m_Drill, false );
-                    msg += ReturnUnitSymbol( g_UserUnit , " %s");
-                    msg += "\t";
-
-                    msg += m_Pcb->GetLayerName( ViasDimensionsList[ii].m_StartLayer );
-                    msg += " - ";
-                    msg += m_Pcb->GetLayerName( ViasDimensionsList[ii].m_EndLayer );
-
-                    m_ViaTypeChoiceChoices.Add( msg );
-
-                    PCB_LAYER_ID startLayer, endLayer;
-                    v->LayerPair( &startLayer, &endLayer );
-                    if( ViasDimensionsList[ii].m_Diameter == v->GetWidth()
-                     && ViasDimensionsList[ii].m_Drill == v->GetDrill()
-                     && ViasDimensionsList[ii].m_Type == v->GetViaType()
-                     && ViasDimensionsList[ii].m_StartLayer == startLayer
-                     && ViasDimensionsList[ii].m_EndLayer == endLayer
-                    )
-                        selection = ii;
-                }
-
-                /*m_ViaTypeChoice->Clear();
-                m_ViaTypeChoice->Append(m_ViaTypeChoiceChoices);
-                m_ViaTypeChoice->Enable();
-                m_ViaTypeChoice->SetSelection(selection);
-                */
-                m_UserViaListBox->Append( m_ViaTypeChoiceChoices );
                 if( selection < m_UserViaListBox->GetCount() ) // we don't know the combination. don't select any
                     m_UserViaListBox->SetSelection( selection );
                 else
