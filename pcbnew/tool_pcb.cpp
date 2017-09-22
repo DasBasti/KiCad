@@ -694,6 +694,22 @@ void PCB_EDIT_FRAME::updateViaSizeSelectBox()
             msg += hole_str;
         }
 
+        switch( GetDesignSettings().m_ViasDimensionsList[ii].m_Type )
+        {
+            case VIA_BLIND_BURIED:
+                msg << wxT( " [B]" );
+                break;
+            case VIA_MICROVIA:
+                msg << wxT( " [M]" );
+                break;
+            case VIA_THROUGH:
+                msg << wxT( " [T]" );
+                break;
+            default:
+                msg << wxT( " [?]" );
+                break;
+        }
+
         // Mark the netclass via size value (the first in list)
         if( ii == 0 )
             msg << wxT( " *" );

@@ -549,7 +549,7 @@ int ROUTER_TOOL::onViaCommand( const TOOL_EVENT& aEvent )
 
         // Can only place microvias if we're on an outer layer, or directly adjacent to one
         // This is not true. So we can not over simplyfy this.
-        // Wee need to trust the user to enter sensible data to user vias.
+        // We need to trust the user to enter sensible data to user vias.
         if( viaType == VIA_MICROVIA )
         {
             std::vector<VIA_DIMENSION> dimensionList = board()->GetDesignSettings().m_ViasDimensionsList;
